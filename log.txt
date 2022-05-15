@@ -1,0 +1,10 @@
+15-05-2022  19:17
+Dziennik zdarzen:
+
+19:17 Zapisano ustawienia
+20:04 Temp1: 25.6 C / Wilg1: 83%RH  /  Temp2: 24.9 C / Wilg2: 47%RH  /  UVA: 13.00, UVB: 23.00, UVI:0.0393
+20:04 !stuff czas do resetu: 5397
+20:09 Temp1: 25.5 C / Wilg1: 85%RH  /  Temp2: 24.9 C / Wilg2: 45%RH  /  UVA: 10.00, UVB: 18.00, UVI:0.0332
+20:09 !stuff czas do resetu: 5399
+20:14 Temp1: 25.4 C / Wilg1: 85%RH  /  Temp2: 24.8 C / Wilg2: 45%RH  /  UVA: 2.00, UVB: 6.00, UVI:0.0092
+20:14 !stuff czas do resetu: 5396

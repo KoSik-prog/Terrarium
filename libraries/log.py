@@ -1,12 +1,25 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        log.py
+# Purpose:
+#
+# Author:      KoSik
+#
+# Created:     26.08.2022
+# Copyright:   (c) kosik 2022
+#-------------------------------------------------------------------------------
+
 import sys, os, datetime, time
 
 
 class LOG_CL:
     busyFlag = False
 
-    def __init__(self):
+    def __init__(self, filePath):
         self.delete_log()
         self.delete_watchdog_log()
+        self.filePath = filePath
 
     def actualTime(self):
         return str(time.strftime("%H:%M"))
@@ -18,7 +31,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open('Desktop/Home/log.txt', 'a+')
+        actFile = open(filePath + '/log.txt', 'a+')
         actFile.write(self.actualTime() + ' ' + information+'\n')
         actFile.close()
         self.busyFlag = False
@@ -28,7 +41,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open('Desktop/Home/log.txt', 'w')
+        actFile = open(filePath + '/log.txt', 'w')
         actFile.write(self.actualDate() + "  " + self.actualTime() + " LOG:\n")
         actFile.close()
         self.busyFlag = False
@@ -37,7 +50,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open('Desktop/Home/watchdog_log.txt', 'a+')
+        actFile = open(filePath + '/watchdog_log.txt', 'a+')
         actFile.write(self.actualTime() + ' ' + information +'\n')
         actFile.close()
         self.busyFlag = False
@@ -46,7 +59,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open('Desktop/Home/watchdog_log.txt', 'w')
+        actFile = open(filePath + '/watchdog_log.txt', 'w')
         actFile.write(self.actualDate() + "  " + self.actualTime() + " LOG:\n")
         actFile.close()
         self.busyFlag = False
@@ -55,9 +68,9 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open('Desktop/Home/stuff.txt', 'a+')
+        actFile = open(filePath + '/stuff.txt', 'a+')
         actFile.write(self.actualTime() + ' ' + information +'\n')
         actFile.close()
         self.busyFlag = False
 
-log = LOG_CL()
+log = LOG_CL('Desktop/terra')

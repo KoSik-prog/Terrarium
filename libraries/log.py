@@ -17,9 +17,9 @@ class LOG_CL:
     busyFlag = False
 
     def __init__(self, filePath):
+        self.filePath = filePath
         self.delete_log()
         self.delete_watchdog_log()
-        self.filePath = filePath
 
     def actualTime(self):
         return str(time.strftime("%H:%M"))
@@ -31,7 +31,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open(filePath + '/log.txt', 'a+')
+        actFile = open(self.filePath + '/log.txt', 'a+')
         actFile.write(self.actualTime() + ' ' + information+'\n')
         actFile.close()
         self.busyFlag = False
@@ -41,7 +41,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open(filePath + '/log.txt', 'w')
+        actFile = open(self.filePath + '/log.txt', 'w')
         actFile.write(self.actualDate() + "  " + self.actualTime() + " LOG:\n")
         actFile.close()
         self.busyFlag = False
@@ -50,7 +50,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open(filePath + '/watchdog_log.txt', 'a+')
+        actFile = open(self.filePath + '/watchdog_log.txt', 'a+')
         actFile.write(self.actualTime() + ' ' + information +'\n')
         actFile.close()
         self.busyFlag = False
@@ -59,7 +59,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open(filePath + '/watchdog_log.txt', 'w')
+        actFile = open(self.filePath + '/watchdog_log.txt', 'w')
         actFile.write(self.actualDate() + "  " + self.actualTime() + " LOG:\n")
         actFile.close()
         self.busyFlag = False
@@ -68,7 +68,7 @@ class LOG_CL:
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open(filePath + '/stuff.txt', 'a+')
+        actFile = open(self.filePath + '/stuff.txt', 'a+')
         actFile.write(self.actualTime() + ' ' + information +'\n')
         actFile.close()
         self.busyFlag = False

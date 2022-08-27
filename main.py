@@ -17,6 +17,9 @@ from pygame.compat import geterror
 import xml.etree.cElementTree as ET
 
 from timeit import default_timer as timer
+
+from libraries.log import *
+from libraries.mainLight import *
 #+++++++ZMIENNE++++++++++++++++++++++++++++++++++++++
 bgcolor=(0,0,0,255)
 kolorczcionki=(185,242,107,255)
@@ -57,13 +60,7 @@ class terrariumCl:   #TERRARIUM
     licznikOczekiwaniaNaCzujniki=60 #licznik dla czasu miedzy odczytem czujnikow
 terrarium=terrariumCl
 
-class lampaMHGCl: # lampa metalohalogenowa
-    Flaga=False
-    AutoON='8:00:00.0000'
-    AutoOFF='19:15:00.0000'#'19:45:00.0000'
-    czasWygaszania=12 #czas stopniowego wygaszania w minutach
-    FlagaSterowanieManualne=False
-lampaMHG=lampaMHGCl
+mainLight = MAIN_LIGHT_CL('8:00:00.0000', '19:15:00.0000')
 
 class lampaHalogenCl: #Halogen
     pwm=0
@@ -114,7 +111,7 @@ pid.SetPoint = targetT
 pid.setSampleTime(60)
 print("Kp: {}, Ki: {}, Kd: {}, Target: {}".format(pid.Kp,pid.Ki,pid.Kd,pid.SetPoint))
 ######################################################################################
-def timerMetalohalogen():
+"""def timerMetalohalogen():
     global czasStartu
 
     format = '%H:%M:%S.%f'
@@ -136,12 +133,12 @@ def timerMetalohalogen():
     end = timer()
     czasOdUruchomienia = datetime.timedelta(seconds=round(end-czasStartu))
     if(lampaMHG.Flaga==0 and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and lampaMHG.FlagaSterowanieManualne==False and czasOdUruchomienia.total_seconds() >= 300):
-        zapis_dziennika_zdarzen("AUTO MHG -> ON")
+        log.add_log("AUTO MHG -> ON")
         GPIO.output(19, GPIO.HIGH) #Metalohalogen
         lampaMHG.Flaga=1
         time.sleep(20)
     if(lampaMHG.Flaga==1 and (int(zmiennaOFF.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<60) and lampaMHG.FlagaSterowanieManualne==False):
-        zapis_dziennika_zdarzen("AUTO MHG -> OFF")
+        log.add_log("AUTO MHG -> OFF")
         lampaHalogen.czasPWMustawienie=0
         lampaHalogen.pwmWymagane=100
         for i in range(30):
@@ -157,7 +154,7 @@ def timerMetalohalogen():
     #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #lampaMHG.Flaga=1 #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #lampaMHG.FlagaSterowanieManualne=True #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
 
 def timerHalogen():
     format = '%H:%M:%S.%f'
@@ -179,9 +176,9 @@ def timerHalogen():
     if(lampaHalogen.FlagaSterowanieOgrzewaniem==False and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and lampaHalogen.FlagaSterowanieManualne==False):
         lampaHalogen.czasPWMustawienie=1.0
         lampaHalogen.FlagaSterowanieOgrzewaniem=True
-        zapis_dziennika_zdarzen("AUTO Halogen -> ON")
+        log.add_log("AUTO Halogen -> ON")
     if(lampaHalogen.FlagaSterowanieOgrzewaniem==True and (int(zmiennaOFF.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<60)): # and lampaHalogen.FlagaSterowanieManualne==False):# and s.is_alive()==True):
-        zapis_dziennika_zdarzen("AUTO Halogen -> OFF")
+        log.add_log("AUTO Halogen -> OFF")
         lampaHalogen.FlagaSterowanieOgrzewaniem=False
         lampaHalogen.pwmWymagane=0
 
@@ -191,27 +188,16 @@ def czas():
 def data():
     return str(time.strftime("%d-%m-%Y"))
 
-def zapis_dziennika_zdarzen(dane):
-    plik = open('Desktop/terra/log.txt', 'a+')
-    plik.write(czas() + ' ' + dane+'\n')
-    plik.close()
-    print (czas() + ' ' + dane)
-
-def kasowanie_dziennika_zdarzen():
-    plik = open('Desktop/terra/log.txt', 'w')
-    plik.write(data() + "  " +czas()+'\nDziennik zdarzen:\n\n')
-    plik.close()
-
 def wysw_init():
     global screen
 
     pygame.init()
     resolution = 800,480
-    screen = pygame.display.set_mode(resolution,FULLSCREEN)
-    #screen = pygame.display.set_mode(resolution,1)
+    #screen = pygame.display.set_mode(resolution,FULLSCREEN)
+    screen = pygame.display.set_mode(resolution, 1)
     pygame.display.set_caption('Terrarium')
     screen.fill(bgcolor)
-    pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
+    pygame.mouse.set_cursor((8,8), (0,0), (0,0,0,0,0,0,0,0), (0,0,0,0,0,0,0,0))
 
 #inicjalizacja ekranu!!!!!!!!!!!!!!!
 wysw_init()
@@ -222,9 +208,9 @@ def wysw():
 
     ekran.icons(0,0,255,"tlo")
 
-    if(lampaMHG.Flaga==1):
+    """if(lampaMHG.Flaga==1):
         ekran.icons(10,pozycjaIkon,255,"zarowka1")
-        pozycjaIkon+=125
+        pozycjaIkon+=125"""
 
     if(lampaHalogen.Flaga==1):
         ekran.icons(10,pozycjaIkon,255,"zarowka2")
@@ -362,7 +348,7 @@ def odczytCzujnikowTemperatury():
     try:
         data = bus.read_i2c_block_data(0x44, 0x00, 6)
     except IOError:
-        zapis_dziennika_zdarzen('err')
+        log.add_log('err')
     temp = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45
     if(terrarium.tempG != 0):
         terrarium.tempG = ((terrarium.tempG*terrarium.wzmocnienie)+temp)/(terrarium.wzmocnienie+1)
@@ -376,12 +362,12 @@ def odczytCzujnikowTemperatury():
     try:
         bus.write_i2c_block_data(0x45, 0x2C, [0x06])
     except IOError:
-        zapis_dziennika_zdarzen('err')
+        log.add_log('err')
     time.sleep(0.5)
     try:
         data = bus.read_i2c_block_data(0x45, 0x00, 6)
     except IOError:
-        zapis_dziennika_zdarzen(err)
+        log.add_log(err)
     temp = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45
     if(terrarium.tempD != 0):
         terrarium.tempD = ((terrarium.tempD*terrarium.wzmocnienie)+temp)/(terrarium.wzmocnienie+1)
@@ -403,7 +389,7 @@ def zapis_ustawien_xml():
 
     tree2 = ET.ElementTree(setings)
     tree2.write('Desktop/terra/ustawienia.xml')
-    zapis_dziennika_zdarzen("Zapisano ustawienia")
+    log.add_log("Zapisano ustawienia")
 
 def odczyt_ustawien_xml():
     tree = ET.ElementTree(file='Desktop/terra/ustawienia.xml')
@@ -417,8 +403,8 @@ def sterowanieOgrzewaniem():
         if(lampaHalogen.FlagaSterowanieOgrzewaniem == True):
             pwm = pid.output
             lampaHalogen.pwmWymagane = max(min( int(pwm), 100 ),0)
-            zapis_dziennika_zdarzen("uvi: {:.2f} / temp: {:.2f} -> halog: {}".format(terrarium.UVI, terrarium.tempG, lampaHalogen.pwmWymagane))
-            zapis_dziennika_zdarzen("flagSterOgrz: {}".format(lampaHalogen.FlagaSterowanieOgrzewaniem))
+            log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {}".format(terrarium.UVI, terrarium.tempG, lampaHalogen.pwmWymagane))
+            log.add_log("flagSterOgrz: {}".format(lampaHalogen.FlagaSterowanieOgrzewaniem))
 #++++++++++++++++WĄTKI+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def licznik():  #-----------watek timera
     global watekAktywny
@@ -433,7 +419,7 @@ def licznik():  #-----------watek timera
         czasikON1=('{:02d}:{:02d}'.format(spryskiwacz.on1H,spryskiwacz.on1M))
         czasikON2=('{:02d}:{:02d}'.format(spryskiwacz.on2H,spryskiwacz.on2M))
         if(czasik==czasikON1 or czasik==czasikON2):
-            zapis_dziennika_zdarzen('Spryskiwanie!')
+            log.add_log('Spryskiwanie!')
             GPIO.output(21, GPIO.HIGH)
             time.sleep(int(spryskiwacz.czasSpryskiwania))
             GPIO.output(21, GPIO.LOW)
@@ -442,14 +428,14 @@ def licznik():  #-----------watek timera
         #-------------------------------------
         if(int(teraz.hour) >= int(czas1) and int(teraz.hour) <= int(czas2)):
             if(terrarium.wilgD > 5 and terrarium.wilgD < terrarium.minWilgotnosc and (end-spryskiwacz.ostatnieSpryskanie)>300):
-                zapis_dziennika_zdarzen('Dodatkowe spryskiwanie!')
+                log.add_log('Dodatkowe spryskiwanie!')
                 GPIO.output(21, GPIO.HIGH)
                 time.sleep(int(spryskiwacz.czasSpryskiwania))
                 GPIO.output(21, GPIO.LOW)
                 spryskiwacz.ostatnieSpryskanie= timer()
                 time.sleep(30)
         #------------
-        timerMetalohalogen()
+        mainLight.check_timer(czasStartu)
         timerHalogen()
         time.sleep(10)
 
@@ -509,8 +495,6 @@ def main():
     lampaHalogen.czasPWM = datetime.datetime.now()
     terrarium.ostatnieOdswiezenieCzujnikow = datetime.datetime.now()
 
-    kasowanie_dziennika_zdarzen()
-
     czasStartu = timer()
     spryskiwacz.ostatnieSpryskanie= timer()
 
@@ -538,9 +522,9 @@ def main():
             bytesToSend = str.encode(msgFromClient)
             UDPClientSocket.sendto(bytesToSend, serverAddressPort)
             terrarium.czasWyslania=datetime.datetime.now()
-            zapis_dziennika_zdarzen("Temp1: {:.1f} C / Wilg1: {:.0f}%RH  /  Temp2: {:.1f} C / Wilg2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVA,terrarium.UVB,terrarium.UVI))
-            #zapis_dziennika_zdarzen("!stuff flag_ster_man: {:.1f} / flag_ster_ogrzew: {:.1f}".format(lampaHalogen.FlagaSterowanieManualne, lampaHalogen.FlagaSterowanieOgrzewaniem))
-            zapis_dziennika_zdarzen("!stuff czas do resetu: {}".format(terrarium.licznikOczekiwaniaNaCzujniki))
+            log.add_log("Temp1: {:.1f} C / Wilg1: {:.0f}%RH  /  Temp2: {:.1f} C / Wilg2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVA,terrarium.UVB,terrarium.UVI))
+            #log.add_log("!stuff flag_ster_man: {:.1f} / flag_ster_ogrzew: {:.1f}".format(lampaHalogen.FlagaSterowanieManualne, lampaHalogen.FlagaSterowanieOgrzewaniem))
+            log.add_log("!stuff czas do resetu: {}".format(terrarium.licznikOczekiwaniaNaCzujniki))
 
         for event in pygame.event.get():
             if event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE:
@@ -622,7 +606,7 @@ def main():
                         GPIO.output(21, GPIO.HIGH)
                         time.sleep(spryskiwacz.czasSpryskManual)
                         GPIO.output(21, GPIO.LOW)
-                        zapis_dziennika_zdarzen('Spryskiwanie manualne! -> {}sek'.format(spryskiwacz.czasSpryskManual))
+                        log.add_log('Spryskiwanie manualne! -> {}sek'.format(spryskiwacz.czasSpryskManual))
                         spryskiwacz.ostatnieSpryskanie= timer()
                         pygame.event.clear
                     if(px>240 and px<320 and py>380 and py<430): #sprysk manualne -

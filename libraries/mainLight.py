@@ -20,6 +20,7 @@ class MAIN_LIGHT_CL:
     AutoOFF = '19:15:00.0000'#'19:45:00.0000'"""
     dimmingTime = 12 #czas stopniowego wygaszania w minutach
     manualControlFlag = False
+    timeToResume = 30 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
 
     def __init__(self, AutoON, AutoOFF):
         self.AutoON = AutoON
@@ -34,15 +35,15 @@ class MAIN_LIGHT_CL:
     def check_timer(self, deviceStartTime):
         format = '%H:%M:%S.%f'
         aktual=datetime.datetime.now().time()
-        
+
         try:
             zmiennaON = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoON, format) # obliczenie roznicy czasu
         except ValueError as e:
-            add_log('Blad czasu wł:', e)
+            log.add_log('Blad czasu wł:', e)
         try:
             zmiennaOFF = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoOFF, format) # obliczenie roznicy czasu
         except ValueError as e:
-            add_log('Blad czasu wył:', e)
+            log.add_log('Blad czasu wył:', e)
         #-----skasowanie flag ----------
         if(int(zmiennaON.total_seconds())>(-15) and int(zmiennaON.total_seconds())<0 and  self.manualControlFlag==True):
             self.manualControlFlag=False
@@ -51,13 +52,13 @@ class MAIN_LIGHT_CL:
         #------SPRAWDZENIE------------------------
         end = timer()
         czasOdUruchomienia = datetime.timedelta(seconds=round(end - deviceStartTime))
-        if(self.flag==0 and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and self.manualControlFlag==False and czasOdUruchomienia.total_seconds() >= 300):
-            add_log("AUTO MHG -> ON")
+        if(self.flag==0 and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and self.manualControlFlag==False and czasOdUruchomienia.total_seconds() >= self.timeToResume):
+            log.add_log("AUTO MHG -> ON")
             GPIO.output(19, GPIO.HIGH) #Metalohalogen
             self.flag=1
             time.sleep(20)
         if(self.flag==1 and (int(zmiennaOFF.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<60) and self.manualControlFlag==False):
-            add_log("AUTO MHG -> OFF")
+            log.add_log("AUTO MHG -> OFF")
             """lampaHalogen.czasPWMustawienie=0
             lampaHalogen.pwmWymagane=100
             for i in range(30):

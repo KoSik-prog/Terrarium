@@ -9,9 +9,7 @@
 # Created:     26.08.2022
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
-
 import sys, os, datetime, time
-
 
 class LOG_CL:
     busyFlag = False

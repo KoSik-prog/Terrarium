@@ -1,12 +1,13 @@
-﻿#-------------------------------------------------------------------------------
-# Name:        module1
+﻿#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        terrarium main program
 # Purpose:
 #
 # Author:      KoSik
 #
 # Created:     06.08.2020
 # Copyright:   (c) kosik 2020
-# Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import pygame, pygame.mixer, pygame.gfxdraw, glob, time, sys, datetime, smbus, board, busio, adafruit_veml6075, socket, threading, os, ekran, PID
 import RPi.GPIO as GPIO
@@ -20,6 +21,8 @@ from timeit import default_timer as timer
 
 from libraries.log import *
 from libraries.mainLight import *
+from libraries.sensors import *
+from terrarium import *
 #+++++++ZMIENNE++++++++++++++++++++++++++++++++++++++
 bgcolor=(0,0,0,255)
 kolorczcionki=(185,242,107,255)
@@ -34,31 +37,6 @@ czasStartu=0
 aktywnaStrona=0 #strona do wyswietlenia
 #+++++++++++++++++++++ ZWLOKA CZASOWA +++++++++++++++++++++++++++
 time.sleep(10)
-
-class terrariumCl:   #TERRARIUM
-    tempG=0.0
-    wilgG=0.0
-    tempD=0.0
-    wilgD=0.0
-    wzmocnienie=4
-    UVA=0.0
-    UVB=0.0
-    UVI=0.0
-    czasWyslania=0
-    interwalWysylania=5
-    minWilgotnosc=50
-    przegrzanieFlaga=False
-    tempWymaganaNaWyspie=29.0 #temp wymagana na wyspie
-    minUVIdlaOgrzewania=0.15 #index UVI przy ktorym zalacza sie ogrzewanie / nie zalacza gdy kameleon zaslania czujnik
-    ostatnieOdswiezenieCzujnikow=0 #czas w ktorym ostatni raz czujniki daly dobry odczyt
-    staraTempG=0.0
-    staraWilgG=0.0
-    staraTempD=0.0
-    staraWilgD=0.0
-    staraUVA=0.0
-    czasOczekiwaniaNaCzujniki=90   #w minutach oczekiwanie na zmianę wartosci czujnikow (dla wykrywania bledow)
-    licznikOczekiwaniaNaCzujniki=60 #licznik dla czasu miedzy odczytem czujnikow
-terrarium=terrariumCl
 
 mainLight = MAIN_LIGHT_CL('8:00:00.0000', '19:15:00.0000')
 
@@ -111,50 +89,6 @@ pid.SetPoint = targetT
 pid.setSampleTime(60)
 print("Kp: {}, Ki: {}, Kd: {}, Target: {}".format(pid.Kp,pid.Ki,pid.Kd,pid.SetPoint))
 ######################################################################################
-"""def timerMetalohalogen():
-    global czasStartu
-
-    format = '%H:%M:%S.%f'
-    aktual=datetime.datetime.now().time()
-    try:
-        zmiennaON = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(lampaMHG.AutoON, format) # obliczenie roznicy czasu
-    except ValueError as e:
-        print('Blad czasu wł:', e)
-    try:
-        zmiennaOFF = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(lampaMHG.AutoOFF, format) # obliczenie roznicy czasu
-    except ValueError as e:
-        print('Blad czasu wył:', e)
-    #-----skasowanie flag ----------
-    if(int(zmiennaON.total_seconds())>(-15) and int(zmiennaON.total_seconds())<0 and  lampaMHG.FlagaSterowanieManualne==True):
-        lampaMHG.FlagaSterowanieManualne=False
-    if(int(zmiennaOFF.total_seconds())>(-15) and int(zmiennaOFF.total_seconds())<0 and lampaMHG.FlagaSterowanieManualne==True):
-        lampaMHG.FlagaSterowanieManualne=False
-    #------SPRAWDZENIE------------------------
-    end = timer()
-    czasOdUruchomienia = datetime.timedelta(seconds=round(end-czasStartu))
-    if(lampaMHG.Flaga==0 and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and lampaMHG.FlagaSterowanieManualne==False and czasOdUruchomienia.total_seconds() >= 300):
-        log.add_log("AUTO MHG -> ON")
-        GPIO.output(19, GPIO.HIGH) #Metalohalogen
-        lampaMHG.Flaga=1
-        time.sleep(20)
-    if(lampaMHG.Flaga==1 and (int(zmiennaOFF.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<60) and lampaMHG.FlagaSterowanieManualne==False):
-        log.add_log("AUTO MHG -> OFF")
-        lampaHalogen.czasPWMustawienie=0
-        lampaHalogen.pwmWymagane=100
-        for i in range(30):
-            if(lampaHalogen.pwm==100):
-                break;
-            time.sleep(1)
-        lampaHalogen.czasPWMustawienie=1
-        GPIO.output(19, GPIO.LOW) #Metalohalogen
-        lampaHalogen.czasPWMustawienie=(lampaMHG.czasWygaszania*60)/100
-        lampaHalogen.pwmWymagane=0
-        lampaMHG.Flaga=0
-        time.sleep(20)
-    #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #lampaMHG.Flaga=1 #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #lampaMHG.FlagaSterowanieManualne=True #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #SKASOWAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
 
 def timerHalogen():
     format = '%H:%M:%S.%f'
@@ -181,12 +115,6 @@ def timerHalogen():
         log.add_log("AUTO Halogen -> OFF")
         lampaHalogen.FlagaSterowanieOgrzewaniem=False
         lampaHalogen.pwmWymagane=0
-
-def czas():
-    return str(time.strftime("%H:%M"))
-
-def data():
-    return str(time.strftime("%d-%m-%Y"))
 
 def wysw_init():
     global screen
@@ -336,52 +264,6 @@ def LCD():  #----WYSWIETLANIE - WATEK!!!!!!!!!! --------------------------------
             menuSpryskiwacz()
         time.sleep(tfps)
 
-def odczytCzujnikowTemperatury():
-    global bus, i2c, veml
-
-    try:
-        bus.write_i2c_block_data(0x44, 0x2C, [0x06])
-    except pigpio.error as e:
-        print ("BLAD! error: %s"%(e))
-
-    time.sleep(0.5)
-    try:
-        data = bus.read_i2c_block_data(0x44, 0x00, 6)
-    except IOError:
-        log.add_log('err')
-    temp = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45
-    if(terrarium.tempG != 0):
-        terrarium.tempG = ((terrarium.tempG*terrarium.wzmocnienie)+temp)/(terrarium.wzmocnienie+1)
-    else:
-        terrarium.tempG = temp
-    wilg=100 * (data[3] * 256 + data[4]) / 65535.0
-    if(terrarium.wilgG != 0):
-        terrarium.wilgG = ((terrarium.wilgG*terrarium.wzmocnienie)+wilg)/(terrarium.wzmocnienie+1)
-    else:
-        terrarium.wilgG = wilg
-    try:
-        bus.write_i2c_block_data(0x45, 0x2C, [0x06])
-    except IOError:
-        log.add_log('err')
-    time.sleep(0.5)
-    try:
-        data = bus.read_i2c_block_data(0x45, 0x00, 6)
-    except IOError:
-        log.add_log(err)
-    temp = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45
-    if(terrarium.tempD != 0):
-        terrarium.tempD = ((terrarium.tempD*terrarium.wzmocnienie)+temp)/(terrarium.wzmocnienie+1)
-    else:
-        terrarium.tempD = temp
-    wilg=100 * (data[3] * 256 + data[4]) / 65535.0
-    if(terrarium.wilgD != 0):
-        terrarium.wilgD = ((terrarium.wilgD*terrarium.wzmocnienie)+wilg)/(terrarium.wzmocnienie+1)
-    else:
-        terrarium.wilgD = wilg
-    terrarium.UVA=veml.uva
-    terrarium.UVB=veml.uvb
-    terrarium.UVI=veml.uv_index
-
 def zapis_ustawien_xml():
     setings = ET.Element("settings")
 
@@ -440,17 +322,14 @@ def licznik():  #-----------watek timera
         time.sleep(10)
 
 def odczytCzujnikowWatek(): # ODCZYT CZUJNIKOW--- WATEK!!!!!!!!!!!!! --------------------------------------------------------------------------------------
-    global bus, i2c, veml
-    i2c = busio.I2C(board.SCL, board.SDA)
-    try:
-        veml = adafruit_veml6075.VEML6075(i2c, integration_time=100)
-    except:
-        print('blad czujnika UV')
-    bus = smbus.SMBus(1)
     i=0
     while(watekAktywny==1):
         i+=1
-        odczytCzujnikowTemperatury()
+        sensors.read_light_index()
+        sensors.read_temperatures()
+        terrarium.UVA = sensors.UVA # poprawić!
+        terrarium.UVB = sensors.UVB
+        terrarium.UVI = sensors.UVI
         if (i>=10):
             sterowanieOgrzewaniem()
             i=0

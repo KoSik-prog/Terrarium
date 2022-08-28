@@ -14,7 +14,7 @@ from time import sleep
 
 pygame.init()
 resolution = 800,480
-screen = pygame.display.set_mode(resolution,FULLSCREEN)
+screen = pygame.display.set_mode(resolution, 1)
 
 def box(screen, x,y,w,h,color):
     pygame.gfxdraw.box(screen, Rect((x,y),(w,h)), color)

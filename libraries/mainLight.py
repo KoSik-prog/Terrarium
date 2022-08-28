@@ -30,7 +30,7 @@ class MAIN_LIGHT_CL:
         self.AutoON = AutoON
         self.AutoOFF = AutoOFF
 
-    def mainLightThread(self):
+    def main_light_thread(self):
         while terrarium.runFlag == True:
             self.check_timer()
             terrarium.mainLightLastUpdateTime = datetime.datetime.now()
@@ -81,3 +81,5 @@ class MAIN_LIGHT_CL:
 
     def lamp_off(self, pin):
         GPIO.output(pin, GPIO.LOW)
+
+mainLight = MAIN_LIGHT_CL(19, '8:00:00.0000', '19:15:00.0000')

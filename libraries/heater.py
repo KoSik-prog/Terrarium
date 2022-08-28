@@ -16,7 +16,7 @@ from terrarium import *
 from libraries.log import *
 
 
-class heaterCL:
+class heater_CL:
     pwm = 0
     pwmWymagane = 0
     flag = False
@@ -37,13 +37,13 @@ class heaterCL:
         self.pid.SetPoint = terrarium.tempWymaganaNaWyspie
         self.pid.setSampleTime(60)
 
-    def heaterThread(self): #---- THREAD
+    def heater_thread(self): #---- THREAD
         while terrarium.runFlag == True:
             self.check_timer()
             terrarium.heaterLastUpdateTime = datetime.datetime.now()
             time.sleep(10)
 
-    def pwmControlThread(self): #---- THREAD
+    def pwm_control_thread(self): #---- THREAD
         i = 0
         while terrarium.runFlag == True:
             duration = datetime.datetime.now() - self.czasPWM
@@ -60,7 +60,7 @@ class heaterCL:
             else:
                 self.flag = False
             if(i == 10): # 1sec
-                self.sterowanieOgrzewaniem()
+                self.heating_control()
                 i = 0
             i += 1
             time.sleep(.1)
@@ -91,12 +91,12 @@ class heaterCL:
             self.heatControlFlag=False
             self.pwmWymagane=0
 
-    def sterowanieOgrzewaniem(self):
+    def heating_control(self):
         if(terrarium.UVI > terrarium.minUVIdlaOgrzewania and self.heatControlFlag == True): #jesli kameleon nie zasłania swiatla
             self.pid.update(terrarium.tempG)
             if(self.heatControlFlag == True):
                 self.pwmWymagane = max(min( int(self.pid.output), 100 ),0)
-                log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.tempG, self.pwmWymagane, self.heatControlFlag))
+                #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.tempG, self.pwmWymagane, self.heatControlFlag))
 
     def heater_on(self, pin):
         GPIO.output(pin, GPIO.HIGH)
@@ -104,4 +104,4 @@ class heaterCL:
     def heater_off(self, pin):
         GPIO.output(pin, GPIO.LOW)
 
-heater = heaterCL(13, 50, '11:00:00.0000', '15:30:00.0000')
+heater = heater_CL(13, 50, '11:00:00.0000', '15:30:00.0000')

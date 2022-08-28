@@ -1,3 +1,0 @@
-11:50 i2c bus error!
-11:50 i2c bus error!
-13:25 i2c bus error!

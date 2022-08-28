@@ -35,18 +35,18 @@ class sensorsCL:
         while terrarium.runFlag == True:
             self.read_light_index()
             self.read_temperatures()
-            self.setDataToTerrarium()
+            self.send_data_to_terrarium()
             terrarium.sensorsLastUpdateTime = datetime.datetime.now()
             time.sleep(1)
 
-    def setDataToTerrarium(self):
+    def send_data_to_terrarium(self):
         terrarium.UVA = self.UVA
-        self.addToArray(self.dataArrayUVA, self.UVA)
+        self.add_to_array(self.dataArrayUVA, self.UVA)
         terrarium.UVB = self.UVB
-        self.addToArray(self.dataArrayUVB, self.UVB)
+        self.add_to_array(self.dataArrayUVB, self.UVB)
         terrarium.UVI = self.UVI
-        #print('res: ' + str(self.areSensorsOK()))
-        if self.areSensorsOK == False:
+        #print('res: ' + str(self.are_sensors_ok()))
+        if self.are_sensors_ok == False:
             system.restart('RESET! -> sensors error')
 
     def read_light_index(self):
@@ -55,6 +55,8 @@ class sensorsCL:
         time.sleep(0.1)
         try:
             self.UVA = veml6075.uva
+            if self.UVA < 0:
+                self.UVA = 0
             self.UVB = veml6075.uva
             self.UVI = veml6075.uv_index
         except NameError:
@@ -62,10 +64,6 @@ class sensorsCL:
             log.add_error_log('i2c bus error!')
             veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time = 100)
             time.sleep(0.1)
-            if veml6075.uva > 0:
-                self.UVA = veml6075.uva
-            else:
-                self.UVA = 0
             self.UVB = veml6075.uvb
             self.UVI = veml6075.uv_index
         del veml6075
@@ -78,33 +76,33 @@ class sensorsCL:
         time.sleep(0.5)
         terrarium.tempG, terrarium.wilgG = self.read_temp_humi(self.address_temp_top)
         terrarium.tempD, terrarium.wilgD = self.read_temp_humi(self.address_temp_bottom)
-        self.addToArray(self.dataArrayTempTop, terrarium.tempG)
-        self.addToArray(self.dataArrayTempBottom, terrarium.tempD)
+        self.add_to_array(self.dataArrayTempTop, terrarium.tempG)
+        self.add_to_array(self.dataArrayTempBottom, terrarium.tempD)
         self.i2c_bus_deinit()
 
-    def areSensorsOK(self):
-        resultTempSensors = self.areTempSensorsOK()
-        resultLightSensor = self.areLightSensorOK()
+    def are_sensors_ok(self):
+        resultTempSensors = self.are_temp_sensors_ok()
+        resultLightSensor = self.are_light_sensor_ok()
         #print('temp sens:' + str(resultTempSensors) + ' / light: ' + str(resultLightSensor))
         if resultTempSensors == False or resultLightSensor == False:
             return False
         else:
             return True
 
-    def areTempSensorsOK(self):
-        resultTempTop = self.isMeasurementOK(self.dataArrayTempTop)
-        resultTempBottom = self.isMeasurementOK(self.dataArrayTempBottom)
-        resultHumiTop = self.isMeasurementOK(self.dataArrayHumiTop)
-        resultHumiBottom = self.isMeasurementOK(self.dataArrayHumiBottom)
+    def are_temp_sensors_ok(self):
+        resultTempTop = self.is_measurement_ok(self.dataArrayTempTop)
+        resultTempBottom = self.is_measurement_ok(self.dataArrayTempBottom)
+        resultHumiTop = self.is_measurement_ok(self.dataArrayHumiTop)
+        resultHumiBottom = self.is_measurement_ok(self.dataArrayHumiBottom)
         #print('temp sensors check: ' + str(resultTempTop) + ' / ' + str(resultTempBottom) + ' : ' + str(resultHumiTop) + ' / ' + str(resultHumiBottom))
         if resultTempTop == True or resultTempBottom == True or resultHumiTop == True or resultHumiBottom == True:
             return True
         else:
             return False
 
-    def areLightSensorOK(self):
-        resultUVA = self.isMeasurementOK(self.dataArrayUVA)
-        resultUVB = self.isMeasurementOK(self.dataArrayUVB)
+    def are_light_sensor_ok(self):
+        resultUVA = self.is_measurement_ok(self.dataArrayUVA)
+        resultUVB = self.is_measurement_ok(self.dataArrayUVB)
 
         #print('light sensor check: ' + str(resultUVA) + ' / ' + str(resultUVB))
         zeroCheckresult = 0
@@ -117,7 +115,7 @@ class sensorsCL:
         else:
             return False
 
-    def isMeasurementOK(self, array):
+    def is_measurement_ok(self, array):
         diff = 0
 
         for i in range(len(array) - 1):
@@ -128,18 +126,15 @@ class sensorsCL:
         else:
             return True
 
-    def addToArray(self, array, value):
-        self.removeFromArray(array)
-        self.saveInArray(array, value)
+    def add_to_array(self, array, value):
+        self.remove_from_array(array)
+        self.save_in_array(array, value)
 
-    def saveInArray(self, array, value):
+    def save_in_array(self, array, value):
         array.append(value)
 
-    def removeFromArray(self, array):
+    def remove_from_array(self, array):
         array.pop(0)
-
-    def readFromArray(self, array, position):
-        return array[position]
 
     def i2c_bus_init(self):
         self.i2cBus = smbus.SMBus(1)

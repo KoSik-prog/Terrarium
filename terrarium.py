@@ -19,7 +19,7 @@ class terrariumCl:   #TERRARIUM
     UVA = 0.0
     UVB = 0.0
     UVI = 0.0
-    czasWyslania = 0
+    socketLastSendTime = 0
     interwalWysylania = 5
     minWilgotnosc = 50
     tempWymaganaNaWyspie = 29.0 #temp wymagana na wyspie

@@ -22,8 +22,8 @@ pygame.init()
 class display_CL:
     pygame.display.set_caption('Terrarium')
     resolution = 800, 480
-    #screen = pygame.display.set_mode(resolution,FULLSCREEN)
-    screen = pygame.display.set_mode(resolution, 1)
+    screen = pygame.display.set_mode(resolution,FULLSCREEN)
+    #screen = pygame.display.set_mode(resolution, 1)
     
     def __init__(self):
         pygame.mouse.set_cursor((8,8), (0,0), (0,0,0,0,0,0,0,0), (0,0,0,0,0,0,0,0))
@@ -34,7 +34,7 @@ class display_CL:
         self.dripper = self.load_image("dripper.gif")
         self.sprysk = self.load_image("sprysk.gif")
 
-    def box(self, screen, x,y,w,h,color):
+    def box(self, screen, x, y, w, h, color):
         pygame.gfxdraw.box(screen, Rect((x,y),(w,h)), color)
 
     def draw_rounded_rect(self, surface, rect, color, corner_radius):

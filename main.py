@@ -9,7 +9,7 @@
 # Created:     06.08.2020
 # Copyright:   (c) kosik 2020
 #-------------------------------------------------------------------------------
-import pygame, pygame.mixer, pygame.gfxdraw, glob, time, sys, datetime, smbus, board, busio, adafruit_veml6075, socket, threading, os
+import pygame, pygame.mixer, pygame.gfxdraw, glob, time, sys, datetime, smbus, board, busio, adafruit_veml6075, threading, os, timeit
 import RPi.GPIO as GPIO
 from pygame.locals import *
 from pygame.compat import unichr_, unicode_
@@ -26,14 +26,9 @@ from libraries.heater import *
 from libraries.sprayer import *
 from libraries.display import *
 from libraries.gui import *
+from libraries.communication import *
 from terrarium import *
-#+++++++ZMIENNE++++++++++++++++++++++++++++++++++++++
-kolorczcionki=(185,242,107,255)
-tfps=1
-
-serverAddressPort = ("192.168.0.99", 2222)
-bufferSize = 1024
-#+++++++++++++++++++++ DELAY +++++++++++++++++++++++++++
+#+++++++++++++++++++++ delay for safety +++++++++++++++++++++++++++
 time.sleep(10)
 #+++++++++++++++++++++++++++++WE/WY++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 GPIO.setmode(GPIO.BCM)
@@ -87,29 +82,21 @@ def main():
 
     zapis_ustawien_xml()
     odczyt_ustawien_xml()
-    #-------------THREADS INIT--------------------------
+    #-------------THREADS INIT--------------------------------
     thread_sensors_init()
     thread_main_light_init()
     thread_heater_init()
     thread_heater_pwm_control_init()
     thread_sprayer_init()
     thread_gui_init()
-    #--------------- OTHERS -------------------------
-    terrarium.czasWyslania=datetime.datetime.now()
+    #------ OTHERS -------------------------------------------
     czasUruchomieniaMenu=datetime.datetime.now()
-    #---------SOCKET INIT--------
-    UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
     #--------------MAIN FUNCTION------------------------------
     while(1):
-        #---------------WYSYLANIE------------------------
-        if((datetime.datetime.now() - terrarium.czasWyslania)>(datetime.timedelta(minutes=terrarium.interwalWysylania))):
-            msgFromClient = "terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVI)
-            bytesToSend = str.encode(msgFromClient)
-            UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-            terrarium.czasWyslania=datetime.datetime.now()
+        #---------------WYSYLANIE-----------------------------
+        if((datetime.datetime.now() - terrarium.socketLastSendTime) > (datetime.timedelta(minutes = terrarium.interwalWysylania))):
+            socket.send_message("terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVI))
             log.add_log("Temp1: {:.1f} C / Wilg1: {:.0f}%RH  /  Temp2: {:.1f} C / Wilg2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVA,terrarium.UVB,terrarium.UVI))
-            #log.add_log("!stuff flag_ster_man: {:.1f} / flag_ster_ogrzew: {:.1f}".format(lampaHalogen.FlagaSterowanieManualne, lampaHalogen.FlagaSterowanieOgrzewaniem))
-            log.add_log("!stuff czas do resetu: {}".format(terrarium.licznikOczekiwaniaNaCzujniki))
 
         for event in pygame.event.get():
             if event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE:

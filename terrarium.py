@@ -24,7 +24,6 @@ class terrariumCl:   #TERRARIUM
     minWilgotnosc = 50
     tempWymaganaNaWyspie = 29.0 #temp wymagana na wyspie
     minUVIdlaOgrzewania = 0.15 #index UVI przy ktorym zalacza sie ogrzewanie / nie zalacza gdy kameleon zaslania czujnik
-    ostatnieOdswiezenieCzujnikow = 0 #czas w ktorym ostatni raz czujniki daly dobry odczyt
     staraTempG = 0.0
     staraWilgG = 0.0
     staraTempD = 0.0

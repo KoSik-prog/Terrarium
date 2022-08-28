@@ -55,7 +55,7 @@ def odczyt_ustawien_xml():
     root = tree.getroot()
 
     terrarium.minWilgotnosc = int(root.find('minWilgotnosc').text)
-#++++++++++++++++ THREADS DEFINISIONS ++++++++++++++++++++++++++++++++++++++++++++++++++
+#++++++++++++++++ THREADS DEFINITIONS ++++++++++++++++++++++++++++++++++++++++++++++++++
 def thread_sensors_init():
     sensorsTH = threading.Thread(target = sensors.sensors_thread)
     sensorsTH.start()
@@ -84,13 +84,6 @@ def thread_gui_init():
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def main():
     log.add_log("Starting...")
-
-    """pygame.quit()
-    sys.exit()
-    pygame.event.clear"""
-
-    terrarium.licznikOczekiwaniaNaCzujniki=120*60
-    terrarium.ostatnieOdswiezenieCzujnikow = datetime.datetime.now()
 
     zapis_ustawien_xml()
     odczyt_ustawien_xml()
@@ -208,14 +201,6 @@ def main():
         czas1=datetime.datetime.now()-czasUruchomieniaMenu #powrot do glownego ekranu jesli bezczynny
         if(czas1.total_seconds()>=120):  # po dwoch minutach
             gui.aktywnaStrona=0
-
-        #BLOK KONTROLI DZIALANIA CZUJNIKOW
-        #odejmuje 1 od ustawionego czasu; gdy odczyt poprawny przywraca wartosc ustawiona
-        terrarium.licznikOczekiwaniaNaCzujniki=terrarium.licznikOczekiwaniaNaCzujniki-1
-        if(terrarium.licznikOczekiwaniaNaCzujniki<1):
-            print('RESET!')
-            os.system('sudo shutdown -r now')
-
         time.sleep(.5)
     pass
 

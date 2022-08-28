@@ -9,6 +9,7 @@
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
 import datetime
+from timeit import default_timer as timer
 
 class terrariumCl:   #TERRARIUM
     tempG = 0.0
@@ -41,4 +42,6 @@ class terrariumCl:   #TERRARIUM
         self.sensorsLastUpdateTime = datetime.datetime.now()
         self.mainLightLastUpdateTime = datetime.datetime.now()
         self.heaterLastUpdateTime = datetime.datetime.now()
+        self.startTime = timer()
+        
 terrarium = terrariumCl

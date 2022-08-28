@@ -23,6 +23,7 @@ from libraries.log import *
 from libraries.mainLight import *
 from libraries.sensors import *
 from libraries.heater import *
+from libraries.sprayer import *
 from terrarium import *
 #+++++++ZMIENNE++++++++++++++++++++++++++++++++++++++
 bgcolor=(0,0,0,255)
@@ -32,31 +33,16 @@ tfps=1
 serverAddressPort = ("192.168.0.99", 2222)
 bufferSize = 1024
 
-watekAktywny=0
-
 aktywnaStrona=0 #strona do wyswietlenia
 #+++++++++++++++++++++ ZWLOKA CZASOWA +++++++++++++++++++++++++++
 time.sleep(10)
 
 mainLight = MAIN_LIGHT_CL(19, '8:00:00.0000', '19:15:00.0000')
-
-class spryskiwaczCl:   #TERRARIUM
-    on1H=9
-    on1M=0
-    on2H=15
-    on2M=0
-    czasSpryskiwania=12
-    czasSpryskManual=5
-    flaga=False
-    ostatnieSpryskanie=0
-spryskiwacz=spryskiwaczCl
-
 #+++++++++++++++++++++++++++++WE/WY++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 GPIO.setmode(GPIO.BCM)
 #GPIO.setup(12, GPIO.OUT) #dripper ENABLE pin
 #GPIO.setup(20, GPIO.OUT) #dripper STEP
 #GPIO.setup(16, GPIO.OUT) #dripper DIR
-GPIO.setup(21, GPIO.OUT) #spryskiwacz
 ######################################################################################
 def wysw_init():
     global screen
@@ -78,18 +64,18 @@ def wysw():
 
     ekran.icons(0,0,255,"tlo")
 
-    """if(lampaMHG.Flaga==1):
-        ekran.icons(10,pozycjaIkon,255,"zarowka1")
-        pozycjaIkon+=125"""
+    if(mainLight.flag == 1):
+        ekran.icons(10, pozycjaIkon,255,"zarowka1")
+        pozycjaIkon += 125
 
-    if(heater.flag==1):
-        ekran.icons(10,pozycjaIkon,255,"zarowka2")
-        dl=ekran.napis_centralny(screen, "{}%".format(heater.pwm),"Nimbus Sans L",48,70,pozycjaIkon+50,(235,0,69),255)
-        pozycjaIkon+=125
+    if(heater.flag == 1):
+        ekran.icons(10, pozycjaIkon, 255,"zarowka2")
+        dl=ekran.napis_centralny(screen, "{}%".format(heater.pwm), "Nimbus Sans L", 48, 70, pozycjaIkon+50, (235, 0, 69), 255)
+        pozycjaIkon += 125
 
-    if(spryskiwacz.flaga==1):
-        ekran.icons(10,pozycjaIkon,255,"spryskiwacz")
-        pozycjaIkon+=125
+    if(sprayer.flaga == True):
+        ekran.icons(10, pozycjaIkon, 255, "spryskiwacz")
+        pozycjaIkon += 125
 
     dl=ekran.napis(screen, "{:.1f}°C".format(terrarium.tempG),"Nimbus Sans L",150,290,10,(247,130,59),255) #(241,198,228)
     ekran.napis(screen, "{:.0f}%".format(terrarium.wilgG),"Nimbus Sans L",80,320+dl,50,(183,176,241),255)
@@ -121,7 +107,7 @@ def menu1():
     ekran.przycisk(screen, (360,220,300,120) ,(213,0,88), (213,0,38), 10, 2)
     ekran.napis(screen, "wentylacja","Nimbus Sans L",70,390,250,(253,50,35),255)
 
-    ekran.napis(screen, "czas pracy:{}".format(str(datetime.timedelta(seconds=round(end - terrarium.startTime)))),"Nimbus Sans L",30,50,440,(150,150,150),100)
+    ekran.napis(screen, "czas pracy:{}".format(str(datetime.timedelta(seconds = round(end - terrarium.startTime)))),"Nimbus Sans L",30,50,440,(150,150,150),100)
 
     ekran.przycisk(screen, (690,390,100,80) ,(120,120,120), (15,15,15), 10, 2)
     ekran.napis(screen, "<","Nimbus Sans L",120,716,375,(0,0,0),255)
@@ -133,10 +119,10 @@ def menuSpryskiwacz():
     end = timer()
     ekran.icons(0,0,255,"tlo")
 
-    if(lampaMHG.Flaga==1):
+    if(mainLight.flag == True):
         ekran.icons(10,10,255,"zarowka1")
 
-    if(lampaHalogen.Flaga==1):
+    if(heater.flag == True):
         ekran.icons(70,10,255,"zarowka2")
 
     ekran.napis(screen, "Timer 1: ","Nimbus Sans L",60,30,40,(253,180,165),255)
@@ -145,10 +131,10 @@ def menuSpryskiwacz():
     ekran.przycisk(screen, (200,60,80,50) ,(80,80,80), (50,50,50), 10, 2)
     ekran.napis(screen, "+","Nimbus Sans L",80,225,48,(220,220,220),255)
     ekran.przycisk(screen, (285,10,100,100) ,(55,112,21), (55,112,21), 10, 2)
-    ekran.napis(screen, "{:02d}".format(spryskiwacz.on1H),"Nimbus Sans L",120,290,17,(220,220,220),255)
+    ekran.napis(screen, "{:02d}".format(sprayer.on1H),"Nimbus Sans L",120,290,17,(220,220,220),255)
     ekran.napis(screen, ":","Nimbus Sans L",120,382,15,(220,220,220),255)
     ekran.przycisk(screen, (400,10,100,100) ,(55,112,21), (55,112,21), 10, 2)
-    ekran.napis(screen, "{:02d}".format(spryskiwacz.on1M),"Nimbus Sans L",120,405,17,(220,220,220),255)
+    ekran.napis(screen, "{:02d}".format(sprayer.on1M),"Nimbus Sans L",120,405,17,(220,220,220),255)
     ekran.przycisk(screen, (505,10,80,50) ,(200,200,200), (250,250,250), 10, 2)
     ekran.napis(screen, "-","Nimbus Sans L",90,535,0,(15,15,15),255)
     ekran.przycisk(screen, (505,60,80,50) ,(80,80,80), (50,50,50), 10, 2)
@@ -160,10 +146,10 @@ def menuSpryskiwacz():
     ekran.przycisk(screen, (200,190,80,50) ,(80,80,80), (50,50,50), 10, 2)
     ekran.napis(screen, "+","Nimbus Sans L",80,225,180,(220,220,220),255)
     ekran.przycisk(screen, (285,140,100,100) ,(55,112,21), (55,112,21), 10, 2)
-    ekran.napis(screen, "{:02d}".format(spryskiwacz.on2H),"Nimbus Sans L",120,290,147,(220,220,220),255)
+    ekran.napis(screen, "{:02d}".format(sprayer.on2H),"Nimbus Sans L",120,290,147,(220,220,220),255)
     ekran.napis(screen, ":","Nimbus Sans L",120,382,145,(220,220,220),255)
     ekran.przycisk(screen, (400,140,100,100) ,(55,112,21), (55,112,21), 10, 2)
-    ekran.napis(screen, "{:02d}".format(spryskiwacz.on2M),"Nimbus Sans L",120,405,147,(220,220,220),255)
+    ekran.napis(screen, "{:02d}".format(sprayer.on2M),"Nimbus Sans L",120,405,147,(220,220,220),255)
     ekran.przycisk(screen, (505,140,80,50) ,(200,200,200), (250,250,250), 10, 2)
     ekran.napis(screen, "-","Nimbus Sans L",90,535,130,(15,15,15),255)
     ekran.przycisk(screen, (505,190,80,50) ,(80,80,80), (50,50,50), 10, 2)
@@ -173,7 +159,7 @@ def menuSpryskiwacz():
     ekran.przycisk(screen, (420,270,80,80) ,(200,200,200), (250,250,250), 10, 2)
     ekran.napis(screen, "-","Nimbus Sans L",110,450,264,(15,15,15),255)
     ekran.przycisk(screen, (505,270,200,80) ,(55,112,21), (55,112,21), 10, 2)
-    ekran.napis(screen, "{} s".format(spryskiwacz.czasSpryskiwania),"Nimbus Sans L",80,535,280,(15,15,15),255)
+    ekran.napis(screen, "{} s".format(sprayer.czasSpryskiwania),"Nimbus Sans L",80,535,280,(15,15,15),255)
     ekran.przycisk(screen, (710,270,80,80) ,(200,200,200), (250,250,250), 10, 2)
     ekran.napis(screen, "+","Nimbus Sans L",80,736,274,(15,15,15),255)
 
@@ -183,21 +169,21 @@ def menuSpryskiwacz():
     ekran.przycisk(screen, (240,430,80,50) ,(80,80,80), (50,50,50), 10, 2)
     ekran.napis(screen, "+","Nimbus Sans L",80,265,420,(220,220,220),255)
     ekran.przycisk(screen, (325,380,200,100) ,(55,112,21), (55,112,21), 10, 2)
-    ekran.napis(screen, "{} s".format(spryskiwacz.czasSpryskManual),"Nimbus Sans L",80,350,400,(220,220,220),255)
+    ekran.napis(screen, "{} s".format(sprayer.czasSpryskManual),"Nimbus Sans L",80,350,400,(220,220,220),255)
     ekran.przycisk(screen, (530,380,80,100) ,(20,192,21), (30,220,21), 10, 2)
 
     ekran.napis(screen, "ostatnie:","Nimbus Sans L",40,670,20,(253,201,77),255)
-    ekran.napis(screen, "{}".format(str(datetime.timedelta(seconds=round(end-spryskiwacz.ostatnieSpryskanie)))),"Nimbus Sans L",40,670,60,(253,201,77),255)
+    ekran.napis(screen, "{}".format(str(datetime.timedelta(seconds=round(end - sprayer.ostatnieSpryskanie)))),"Nimbus Sans L",40,670,60,(253,201,77),255)
 
     ekran.przycisk(screen, (690,390,100,80) ,(120,120,120), (15,15,15), 10, 2)
     ekran.napis(screen, "<","Nimbus Sans L",120,716,375,(0,0,0),255)
     pygame.display.update()
 
 def LCD():  #----WYSWIETLANIE - WATEK!!!!!!!!!! ------------------------------------------------------------------------------------------------------
-    global watekAktywny , aktywnaStrona
+    global aktywnaStrona
     tfps=0.5
 
-    while(watekAktywny==1):
+    while(terrarium.runFlag == True):
         if(aktywnaStrona==0):
             wysw()
         elif(aktywnaStrona==1):
@@ -220,42 +206,9 @@ def odczyt_ustawien_xml():
     root = tree.getroot()
 
     terrarium.minWilgotnosc = int(root.find('minWilgotnosc').text)
-#++++++++++++++++WĄTKI+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def licznik():  #-----------watek timera
-    global watekAktywny
-    czas1='09'  #w tych godzinach aktywne dodatkowe spryskiwanie
-    czas2='18'
-    GPIO.output(21, GPIO.LOW)
-
-    while(watekAktywny==1):
-        end = timer()
-        teraz = datetime.datetime.now()
-        czasik=('{:02d}:{:02d}'.format(teraz.hour,teraz.minute))
-        czasikON1=('{:02d}:{:02d}'.format(spryskiwacz.on1H,spryskiwacz.on1M))
-        czasikON2=('{:02d}:{:02d}'.format(spryskiwacz.on2H,spryskiwacz.on2M))
-        if(czasik==czasikON1 or czasik==czasikON2):
-            log.add_log('Spryskiwanie!')
-            GPIO.output(21, GPIO.HIGH)
-            time.sleep(int(spryskiwacz.czasSpryskiwania))
-            GPIO.output(21, GPIO.LOW)
-            spryskiwacz.ostatnieSpryskanie= timer()
-            time.sleep(30)
-        #-------------------------------------
-        if(int(teraz.hour) >= int(czas1) and int(teraz.hour) <= int(czas2)):
-            if(terrarium.wilgD > 5 and terrarium.wilgD < terrarium.minWilgotnosc and (end-spryskiwacz.ostatnieSpryskanie)>300):
-                log.add_log('Dodatkowe spryskiwanie!')
-                GPIO.output(21, GPIO.HIGH)
-                time.sleep(int(spryskiwacz.czasSpryskiwania))
-                GPIO.output(21, GPIO.LOW)
-                spryskiwacz.ostatnieSpryskanie= timer()
-                time.sleep(30)
-        #------------
-        time.sleep(10)
-
-
-
+#++++++++++++++++ THREADS DEFINISIONS ++++++++++++++++++++++++++++++++++++++++++++++++++
 def thread_sensors_init():
-    sensorsTH = threading.Thread(target = sensors.sensorsThread)
+    sensorsTH = threading.Thread(target = sensors.sensors_thread)
     sensorsTH.start()
 
 def thread_main_light_init():
@@ -269,34 +222,32 @@ def thread_heater_init():
 def thread_heater_pwm_control_init():
     heaterPwmControlTH = threading.Thread(target = heater.pwmControlThread)
     heaterPwmControlTH.start()
+
+def thread_sprayer_init():
+    sprayerTH = threading.Thread(target = sprayer.sprayer_thread)
+    sprayerTH.start()
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #-----START-------------------------------------------------------------------------------------------------------------------------------------------
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def main():
-    global watekAktywny, aktywnaStrona
+    global aktywnaStrona
 
     log.add_log("Starting...")
 
     terrarium.licznikOczekiwaniaNaCzujniki=120*60
     terrarium.ostatnieOdswiezenieCzujnikow = datetime.datetime.now()
 
-    terrarium.startTime = timer()
-    spryskiwacz.ostatnieSpryskanie= timer()
-
     zapis_ustawien_xml()
     odczyt_ustawien_xml()
-
-    watekAktywny=1
     #-------------THREADS INIT--------------------------
     t = threading.Thread(target=LCD)
     t.start()
-    t1 = threading.Thread(target=licznik)
-    t1.start()
 
     thread_sensors_init()
     thread_main_light_init()
     thread_heater_init()
     thread_heater_pwm_control_init()
+    thread_sprayer_init()
     #--------------- OTHERS -------------------------
     terrarium.czasWyslania=datetime.datetime.now()
     czasUruchomieniaMenu=datetime.datetime.now()
@@ -316,7 +267,7 @@ def main():
 
         for event in pygame.event.get():
             if event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE:
-                watekAktywny=0
+                terrarium.runFlag = False
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -331,7 +282,7 @@ def main():
                         aktywnaStrona=1
                         pygame.event.clear
                     elif(px>630 and px<800 and py>0 and py<150):
-                        watekAktywny=0
+                        terrarium.runFlag = False
                         time.sleep(1)
                         pygame.quit()
                         sys.exit()
@@ -350,58 +301,54 @@ def main():
                 #---strona 2 (spryskanie)-------------
                 elif(aktywnaStrona==2):
                     if(px>200 and px<280 and py>10 and py<60):  #godz1 -
-                        spryskiwacz.on1H-=1
-                        if(spryskiwacz.on1H<0):
-                            spryskiwacz.on1H=23
+                        sprayer.on1H-=1
+                        if(sprayer.on1H<0):
+                            sprayer.on1H=23
                     if(px>200 and px<280 and py>60 and py<110): #godz1 +
-                        spryskiwacz.on1H+=1
-                        if(spryskiwacz.on1H>23):
-                            spryskiwacz.on1H=0
+                        sprayer.on1H+=1
+                        if(sprayer.on1H>23):
+                            sprayer.on1H=0
                     if(px>505 and px<585 and py>10 and py<60):  #min1 -
-                        spryskiwacz.on1M-=1
-                        if(spryskiwacz.on1M<0):
-                            spryskiwacz.on1M=59
+                        sprayer.on1M-=1
+                        if(sprayer.on1M<0):
+                            sprayer.on1M=59
                     if(px>505 and px<585 and py>60 and py<110): #min1 +
-                        spryskiwacz.on1M+=1
-                        if(spryskiwacz.on1M>59):
-                            spryskiwacz.on1M=0
+                        sprayer.on1M+=1
+                        if(sprayer.on1M>59):
+                            sprayer.on1M=0
                     #--------
                     if(px>200 and px<280 and py>140 and py<190):  #godz2 -
-                        spryskiwacz.on2H-=1
-                        if(spryskiwacz.on2H<0):
-                            spryskiwacz.on2H=23
+                        sprayer.on2H-=1
+                        if(sprayer.on2H<0):
+                            sprayer.on2H=23
                     if(px>200 and px<280 and py>190 and py<240): #godz2 +
-                        spryskiwacz.on2H+=1
-                        if(spryskiwacz.on2H>23):
-                            spryskiwacz.on2H=0
+                        sprayer.on2H+=1
+                        if(sprayer.on2H>23):
+                            sprayer.on2H=0
                     if(px>505 and px<585 and py>140 and py<190):  #min2 -
-                        spryskiwacz.on2M-=1
-                        if(spryskiwacz.on2M<0):
-                            spryskiwacz.on2M=59
+                        sprayer.on2M-=1
+                        if(sprayer.on2M<0):
+                            sprayer.on2M=59
                     if(px>505 and px<585 and py>190 and py<240): #min2 +
-                        spryskiwacz.on2M+=1
-                        if(spryskiwacz.on2M>59):
-                            spryskiwacz.on2M=0
+                        sprayer.on2M+=1
+                        if(sprayer.on2M>59):
+                            sprayer.on2M=0
                     #--------
                     if(px>420 and px<500 and py>270 and py<350):  #czas spryskiwania -
-                        if(spryskiwacz.czasSpryskiwania>5):
-                            spryskiwacz.czasSpryskiwania-=2
+                        if(sprayer.czasSpryskiwania > 5):
+                            sprayer.czasSpryskiwania -= 2
                     if(px>710 and px<790 and py>270 and py<350):  #czas spryskiwania +
-                        if(spryskiwacz.czasSpryskiwania<50):
-                            spryskiwacz.czasSpryskiwania+=2
+                        if(sprayer.czasSpryskiwania < 50):
+                            sprayer.czasSpryskiwania += 2
                     #--------
                     if(px>530 and px<610 and py>380 and py<480):  #spryskiwanie manualne
-                        GPIO.output(21, GPIO.HIGH)
-                        time.sleep(spryskiwacz.czasSpryskManual)
-                        GPIO.output(21, GPIO.LOW)
-                        log.add_log('Spryskiwanie manualne! -> {}sek'.format(spryskiwacz.czasSpryskManual))
-                        spryskiwacz.ostatnieSpryskanie= timer()
+                        sprayer.spray_terrarium(sprayer.czasSpryskiwania)
                         pygame.event.clear
                     if(px>240 and px<320 and py>380 and py<430): #sprysk manualne -
-                        if(spryskiwacz.czasSpryskManual>5):
-                            spryskiwacz.czasSpryskManual-=2
+                        if(sprayer.czasSpryskManual>5):
+                            sprayer.czasSpryskManual-=2
                     if(px>240 and px<320 and py>430 and py<480):  #sprysk manualne +
-                        spryskiwacz.czasSpryskManual+=2
+                        sprayer.czasSpryskManual+=2
                     if(px>690 and px<800 and py>390 and py<480):
                         aktywnaStrona=1
                 #---------------------

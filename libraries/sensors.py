@@ -31,7 +31,7 @@ class sensorsCL:
         self.address_temp_top = address_temp_top
         self.address_temp_bottom = address_temp_bottom
 
-    def sensorsThread(self):
+    def sensors_thread(self):
         while terrarium.runFlag == True:
             self.read_light_index()
             self.read_temperatures()

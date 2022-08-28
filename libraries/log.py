@@ -62,11 +62,11 @@ class LOG_CL:
         actFile.close()
         self.busyFlag = False
 
-    def add_stuff_log(self, information):
+    def add_error_log(self, information):
         while self.busyFlag == True:
             time.sleep(0.001)
         self.busyFlag = True
-        actFile = open(self.filePath + '/stuff.txt', 'a+')
+        actFile = open(self.filePath + '/error.txt', 'a+')
         actFile.write(self.actualTime() + ' ' + information +'\n')
         actFile.close()
         self.busyFlag = False

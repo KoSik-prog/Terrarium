@@ -9,6 +9,7 @@
 # Created:     27.08.2022
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
+import datetime
 
 class terrariumCl:   #TERRARIUM
     tempG=0.0
@@ -33,4 +34,13 @@ class terrariumCl:   #TERRARIUM
     staraUVA=0.0
     czasOczekiwaniaNaCzujniki=90   #w minutach oczekiwanie na zmianę wartosci czujnikow (dla wykrywania bledow)
     licznikOczekiwaniaNaCzujniki=60 #licznik dla czasu miedzy odczytem czujnikow
+    runFlag = True #flaga utrzymujaca watki
+    startTime = 0
+
+    sensorsLastUpdateTime = 0
+    mainLightLastUpdateTime = 0
+
+    def __init__(self):
+        self.sensorsLastUpdateTime = datetime.datetime.now()
+        self.mainLightLastUpdateTime = datetime.datetime.now()
 terrarium = terrariumCl

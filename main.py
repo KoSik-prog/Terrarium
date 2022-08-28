@@ -32,13 +32,12 @@ serverAddressPort = ("192.168.0.99", 2222)
 bufferSize = 1024
 
 watekAktywny=0
-czasStartu=0
 
 aktywnaStrona=0 #strona do wyswietlenia
 #+++++++++++++++++++++ ZWLOKA CZASOWA +++++++++++++++++++++++++++
 time.sleep(10)
 
-mainLight = MAIN_LIGHT_CL('8:00:00.0000', '19:15:00.0000')
+mainLight = MAIN_LIGHT_CL(19, '8:00:00.0000', '19:15:00.0000')
 
 class lampaHalogenCl: #Halogen
     pwm=0
@@ -179,7 +178,7 @@ def menu1():
     ekran.przycisk(screen, (360,220,300,120) ,(213,0,88), (213,0,38), 10, 2)
     ekran.napis(screen, "wentylacja","Nimbus Sans L",70,390,250,(253,50,35),255)
 
-    ekran.napis(screen, "czas pracy:{}".format(str(datetime.timedelta(seconds=round(end-czasStartu)))),"Nimbus Sans L",30,50,440,(150,150,150),100)
+    ekran.napis(screen, "czas pracy:{}".format(str(datetime.timedelta(seconds=round(end - terrarium.startTime)))),"Nimbus Sans L",30,50,440,(150,150,150),100)
 
     ekran.przycisk(screen, (690,390,100,80) ,(120,120,120), (15,15,15), 10, 2)
     ekran.napis(screen, "<","Nimbus Sans L",120,716,375,(0,0,0),255)
@@ -317,36 +316,8 @@ def licznik():  #-----------watek timera
                 spryskiwacz.ostatnieSpryskanie= timer()
                 time.sleep(30)
         #------------
-        mainLight.check_timer(czasStartu)
         timerHalogen()
         time.sleep(10)
-
-def odczytCzujnikowWatek(): # ODCZYT CZUJNIKOW--- WATEK!!!!!!!!!!!!! --------------------------------------------------------------------------------------
-    i=0
-    while(watekAktywny==1):
-        i+=1
-        sensors.read_light_index()
-        sensors.read_temperatures()
-        terrarium.UVA = sensors.UVA # poprawić!
-        terrarium.UVB = sensors.UVB
-        terrarium.UVI = sensors.UVI
-        if (i>=10):
-            sterowanieOgrzewaniem()
-            i=0
-        #sprawdzenie czy czujnik nie zawiesił się
-        if(terrarium.tempD != terrarium.staraTempD or terrarium.tempG != terrarium.staraTempG or terrarium.wilgD != terrarium.staraWilgD or terrarium.wilgG != terrarium.staraWilgG or terrarium.UVA != terrarium.staraUVA):
-            duration = datetime.datetime.now() - terrarium.ostatnieOdswiezenieCzujnikow
-            #zapis_dziennika_zdarzen ("czujniki dzialaja / czas: {:.0f}".format(duration.total_seconds()))
-            #--------------
-            terrarium.staraTempD = terrarium.tempD
-            terrarium.staraTempG = terrarium.tempG
-            terrarium.staraWilgD= terrarium.wilgD
-            terrarium.staraWilgG = terrarium.wilgG
-            terrarium.staraUVA = terrarium.UVA
-            terrarium.ostatnieOdswiezenieCzujnikow = datetime.datetime.now()
-
-        time.sleep(1)
-        terrarium.licznikOczekiwaniaNaCzujniki=terrarium.czasOczekiwaniaNaCzujniki*60 #poprawny odczyt resetuje licznik bledu
 
 def sterowanieHalogenem(): #-----sterowanie halogenem WĄTEK
     global watekAktywny
@@ -365,35 +336,52 @@ def sterowanieHalogenem(): #-----sterowanie halogenem WĄTEK
         else:
             lampaHalogen.Flaga=False
         time.sleep(.1)
-#+++++++++++++++++++++MAIN+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+def thread_sensors_init():
+    sensorsTH = threading.Thread(target = sensors.sensorsThread)
+    sensorsTH.start()
+
+def thread_main_light_init():
+    mainLightTH = threading.Thread(target = mainLight.mainLightThread)
+    mainLightTH.start()
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#-----START-------------------------------------------------------------------------------------------------------------------------------------------
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def main():
-    global watekAktywny, czasStartu, aktywnaStrona
+    global watekAktywny, aktywnaStrona
+
+    log.add_log("Starting...")
 
     terrarium.licznikOczekiwaniaNaCzujniki=120*60
 
     lampaHalogen.czasPWM = datetime.datetime.now()
     terrarium.ostatnieOdswiezenieCzujnikow = datetime.datetime.now()
 
-    czasStartu = timer()
+    terrarium.startTime = timer()
     spryskiwacz.ostatnieSpryskanie= timer()
 
     zapis_ustawien_xml()
     odczyt_ustawien_xml()
 
     watekAktywny=1
-    t=threading.Thread(target=LCD)
+    #-------------THREADS INIT--------------------------
+    t = threading.Thread(target=LCD)
     t.start()
-    c=threading.Thread(target=odczytCzujnikowWatek)
-    c.start()
-    t1=threading.Thread(target=licznik)
+    t1 = threading.Thread(target=licznik)
     t1.start()
-    st=threading.Thread(target=sterowanieHalogenem)
+    st = threading.Thread(target=sterowanieHalogenem)
     st.start()
+
+    thread_sensors_init()
+    thread_main_light_init()
+
+    #--------------- OTHERS -------------------------
 
     terrarium.czasWyslania=datetime.datetime.now()
     czasUruchomieniaMenu=datetime.datetime.now()
     #---------SOCKET INIT--------
     UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+    #--------------MAIN FUNCTION------------------------------
     while(1):
         #---------------WYSYLANIE------------------------
         if((datetime.datetime.now() - terrarium.czasWyslania)>(datetime.timedelta(minutes=terrarium.interwalWysylania))):

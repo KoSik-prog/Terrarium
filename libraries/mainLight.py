@@ -9,9 +9,11 @@
 # Created:     26.08.2022
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
+import datetime
 import RPi.GPIO as GPIO
 from timeit import default_timer as timer
 
+from terrarium import *
 from libraries.log import *
 
 class MAIN_LIGHT_CL:
@@ -22,9 +24,16 @@ class MAIN_LIGHT_CL:
     manualControlFlag = False
     timeToResume = 30 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
 
-    def __init__(self, AutoON, AutoOFF):
+    def __init__(self, pin, AutoON, AutoOFF):
         self.AutoON = AutoON
         self.AutoOFF = AutoOFF
+        self.pin = pin
+
+    def mainLightThread(self):
+        while terrarium.runFlag == True:
+            self.check_timer()
+            terrarium.mainLightLastUpdateTime = datetime.datetime.now()
+            time.sleep(10)
 
     def lamp_on(self, pin):
         GPIO.output(pin, GPIO.HIGH)
@@ -32,33 +41,33 @@ class MAIN_LIGHT_CL:
     def lamp_off(self, pin):
         GPIO.output(pin, GPIO.LOW)
 
-    def check_timer(self, deviceStartTime):
+    def check_timer(self):
         format = '%H:%M:%S.%f'
-        aktual=datetime.datetime.now().time()
+        actualTime=datetime.datetime.now().time()
 
         try:
-            zmiennaON = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoON, format) # obliczenie roznicy czasu
+            onTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoON, format)
         except ValueError as e:
-            log.add_log('Blad czasu wł:', e)
+            log.add_log('error: ', e)
         try:
-            zmiennaOFF = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoOFF, format) # obliczenie roznicy czasu
+            offTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoOFF, format)
         except ValueError as e:
-            log.add_log('Blad czasu wył:', e)
-        #-----skasowanie flag ----------
-        if(int(zmiennaON.total_seconds())>(-15) and int(zmiennaON.total_seconds())<0 and  self.manualControlFlag==True):
+            log.add_log('error: ', e)
+        # clear flags 
+        if(int(onTimeDifference.total_seconds())>(-15) and int(onTimeDifference.total_seconds())<0 and  self.manualControlFlag==True):
             self.manualControlFlag=False
-        if(int(zmiennaOFF.total_seconds())>(-15) and int(zmiennaOFF.total_seconds())<0 and self.manualControlFlag==True):
+        if(int(offTimeDifference.total_seconds())>(-15) and int(offTimeDifference.total_seconds())<0 and self.manualControlFlag==True):
             self.manualControlFlag=False
-        #------SPRAWDZENIE------------------------
+        #------check------------------------
         end = timer()
-        czasOdUruchomienia = datetime.timedelta(seconds=round(end - deviceStartTime))
-        if(self.flag==0 and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and self.manualControlFlag==False and czasOdUruchomienia.total_seconds() >= self.timeToResume):
-            log.add_log("AUTO MHG -> ON")
-            GPIO.output(19, GPIO.HIGH) #Metalohalogen
+        startupTime = datetime.timedelta(seconds=round(end - terrarium.startTime))
+        if(self.flag==0 and (int(onTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<(-60)) and self.manualControlFlag==False and startupTime.total_seconds() >= self.timeToResume):
+            log.add_log("AUTO main light -> ON")
+            self.lamp_on(self.pin)
             self.flag=1
             time.sleep(20)
-        if(self.flag==1 and (int(zmiennaOFF.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<60) and self.manualControlFlag==False):
-            log.add_log("AUTO MHG -> OFF")
+        if(self.flag==1 and (int(offTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<60) and self.manualControlFlag==False):
+            log.add_log("AUTO main light -> OFF")
             """lampaHalogen.czasPWMustawienie=0
             lampaHalogen.pwmWymagane=100
             for i in range(30):
@@ -66,7 +75,7 @@ class MAIN_LIGHT_CL:
                     break;
                 time.sleep(1)
             lampaHalogen.czasPWMustawienie=1"""
-            self.lamp_off()
+            self.lamp_off(self.pin)
             """lampaHalogen.czasPWMustawienie=(self.czasWygaszania*60)/100
             lampaHalogen.pwmWymagane=0"""
             self.flag=0

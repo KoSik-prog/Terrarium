@@ -25,21 +25,16 @@ class MAIN_LIGHT_CL:
     timeToResume = 30 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
 
     def __init__(self, pin, AutoON, AutoOFF):
+        GPIO.setup(pin, GPIO.OUT)
+        self.pin = pin
         self.AutoON = AutoON
         self.AutoOFF = AutoOFF
-        self.pin = pin
 
     def mainLightThread(self):
         while terrarium.runFlag == True:
             self.check_timer()
             terrarium.mainLightLastUpdateTime = datetime.datetime.now()
             time.sleep(10)
-
-    def lamp_on(self, pin):
-        GPIO.output(pin, GPIO.HIGH)
-
-    def lamp_off(self, pin):
-        GPIO.output(pin, GPIO.LOW)
 
     def check_timer(self):
         format = '%H:%M:%S.%f'
@@ -80,3 +75,9 @@ class MAIN_LIGHT_CL:
             lampaHalogen.pwmWymagane=0"""
             self.flag=0
             time.sleep(20)
+
+    def lamp_on(self, pin):
+        GPIO.output(pin, GPIO.HIGH)
+
+    def lamp_off(self, pin):
+        GPIO.output(pin, GPIO.LOW)

@@ -59,6 +59,7 @@ class sensorsCL:
             self.UVI = veml6075.uv_index
         except NameError:
             log.add_log('i2c bus error!')
+            log.add_error_log('i2c bus error!')
             veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time = 100)
             time.sleep(0.1)
             if veml6075.uva > 0:
@@ -156,6 +157,7 @@ class sensorsCL:
             self.data = self.i2cBus.read_i2c_block_data(address, 0x00, 6)
         except IOError:
             log.add_log('i2c error!')
+            log.add_error_log('i2c bus error!')
         temp = ((((self.data[0] * 256.0) + self.data[1]) * 175) / 65535.0) - 45
         humi = 100 * (self.data[3] * 256 + self.data[4]) / 65535.0
         return temp, humi

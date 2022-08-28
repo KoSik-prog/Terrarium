@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
 # Name:        terrarium
-# Purpose:
 #
 # Author:      KoSik
 #
@@ -39,8 +38,10 @@ class terrariumCl:   #TERRARIUM
 
     sensorsLastUpdateTime = 0
     mainLightLastUpdateTime = 0
+    heaterLastUpdateTime = 0
 
     def __init__(self):
         self.sensorsLastUpdateTime = datetime.datetime.now()
         self.mainLightLastUpdateTime = datetime.datetime.now()
+        self.heaterLastUpdateTime = datetime.datetime.now()
 terrarium = terrariumCl

@@ -9,7 +9,7 @@
 # Created:     06.08.2020
 # Copyright:   (c) kosik 2020
 #-------------------------------------------------------------------------------
-import pygame, pygame.mixer, pygame.gfxdraw, glob, time, sys, datetime, smbus, board, busio, adafruit_veml6075, socket, threading, os, ekran, PID
+import pygame, pygame.mixer, pygame.gfxdraw, glob, time, sys, datetime, smbus, board, busio, adafruit_veml6075, socket, threading, os, ekran
 import RPi.GPIO as GPIO
 from pygame.locals import *
 from pygame.compat import unichr_, unicode_
@@ -22,6 +22,7 @@ from timeit import default_timer as timer
 from libraries.log import *
 from libraries.mainLight import *
 from libraries.sensors import *
+from libraries.heater import *
 from terrarium import *
 #+++++++ZMIENNE++++++++++++++++++++++++++++++++++++++
 bgcolor=(0,0,0,255)
@@ -39,18 +40,6 @@ time.sleep(10)
 
 mainLight = MAIN_LIGHT_CL(19, '8:00:00.0000', '19:15:00.0000')
 
-class lampaHalogenCl: #Halogen
-    pwm=0
-    pwmWymagane=0
-    Flaga=False
-    AutoON='11:00:00.0000'
-    AutoOFF='15:30:00.0000'
-    FlagaSterowanieManualne=False
-    FlagaSterowanieOgrzewaniem=False
-    czasPWMustawienie=1.0 #ustawienie czasu narastania pwm
-    czasPWM=0 #zmienna do zapisania czasu ostatniej regulacji
-lampaHalogen=lampaHalogenCl
-
 class spryskiwaczCl:   #TERRARIUM
     on1H=9
     on1M=0
@@ -64,57 +53,11 @@ spryskiwacz=spryskiwaczCl
 
 #+++++++++++++++++++++++++++++WE/WY++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(13, GPIO.OUT) #Halogen
 #GPIO.setup(12, GPIO.OUT) #dripper ENABLE pin
 #GPIO.setup(20, GPIO.OUT) #dripper STEP
 #GPIO.setup(16, GPIO.OUT) #dripper DIR
-GPIO.setup(19, GPIO.OUT) #Metalohalogen
 GPIO.setup(21, GPIO.OUT) #spryskiwacz
-
-halogen = GPIO.PWM(13, 50)  # uruchomienie PWM Halogenu
-halogen.start(lampaHalogen.pwm)
-
-#GPIO.output(12, GPIO.HIGH) #dripper enable pin - motor disable
-#GPIO.output(19, GPIO.LOW) #Metalohalogen 0
-#+++++++++++++++++++++++++ inne ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#---ustawienia PID----
-targetT = terrarium.tempWymaganaNaWyspie
-P = 3 #3
-I = 4 #2
-D = 5 #5
-
-pid = PID.PID(P, I, D)
-pid.SetPoint = targetT
-pid.setSampleTime(60)
-print("Kp: {}, Ki: {}, Kd: {}, Target: {}".format(pid.Kp,pid.Ki,pid.Kd,pid.SetPoint))
 ######################################################################################
-
-def timerHalogen():
-    format = '%H:%M:%S.%f'
-    aktual=datetime.datetime.now().time()
-    try:
-        zmiennaON = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(lampaHalogen.AutoON, format) # obliczenie roznicy czasu
-    except ValueError as e:
-        print('Blad czasu wł:', e)
-    try:
-        zmiennaOFF = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(lampaHalogen.AutoOFF, format) # obliczenie roznicy czasu
-    except ValueError as e:
-        print('Blad czasu wył:', e)
-    #-----skasowanie flag ----------
-    if(int(zmiennaON.total_seconds())>(-15) and int(zmiennaON.total_seconds())<0 and  lampaHalogen.FlagaSterowanieManualne==True):
-        lampaHalogen.FlagaSterowanieManualne=False
-    if(int(zmiennaOFF.total_seconds())>(-15) and int(zmiennaOFF.total_seconds())<0 and lampaHalogen.FlagaSterowanieManualne==True):
-        lampaHalogen.FlagaSterowanieManualne=False
-    #------SPRAWDZENIE------------------------
-    if(lampaHalogen.FlagaSterowanieOgrzewaniem==False and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and lampaHalogen.FlagaSterowanieManualne==False):
-        lampaHalogen.czasPWMustawienie=1.0
-        lampaHalogen.FlagaSterowanieOgrzewaniem=True
-        log.add_log("AUTO Halogen -> ON")
-    if(lampaHalogen.FlagaSterowanieOgrzewaniem==True and (int(zmiennaOFF.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<60)): # and lampaHalogen.FlagaSterowanieManualne==False):# and s.is_alive()==True):
-        log.add_log("AUTO Halogen -> OFF")
-        lampaHalogen.FlagaSterowanieOgrzewaniem=False
-        lampaHalogen.pwmWymagane=0
-
 def wysw_init():
     global screen
 
@@ -139,9 +82,9 @@ def wysw():
         ekran.icons(10,pozycjaIkon,255,"zarowka1")
         pozycjaIkon+=125"""
 
-    if(lampaHalogen.Flaga==1):
+    if(heater.flag==1):
         ekran.icons(10,pozycjaIkon,255,"zarowka2")
-        dl=ekran.napis_centralny(screen, "{}%".format(lampaHalogen.pwm),"Nimbus Sans L",48,70,pozycjaIkon+50,(235,0,69),255)
+        dl=ekran.napis_centralny(screen, "{}%".format(heater.pwm),"Nimbus Sans L",48,70,pozycjaIkon+50,(235,0,69),255)
         pozycjaIkon+=125
 
     if(spryskiwacz.flaga==1):
@@ -277,15 +220,6 @@ def odczyt_ustawien_xml():
     root = tree.getroot()
 
     terrarium.minWilgotnosc = int(root.find('minWilgotnosc').text)
-
-def sterowanieOgrzewaniem():
-    if(terrarium.UVI > terrarium.minUVIdlaOgrzewania and lampaHalogen.FlagaSterowanieOgrzewaniem == True): #jesli kameleon nie zasłania swiatla
-        pid.update(terrarium.tempG)
-        if(lampaHalogen.FlagaSterowanieOgrzewaniem == True):
-            pwm = pid.output
-            lampaHalogen.pwmWymagane = max(min( int(pwm), 100 ),0)
-            log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {}".format(terrarium.UVI, terrarium.tempG, lampaHalogen.pwmWymagane))
-            log.add_log("flagSterOgrz: {}".format(lampaHalogen.FlagaSterowanieOgrzewaniem))
 #++++++++++++++++WĄTKI+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def licznik():  #-----------watek timera
     global watekAktywny
@@ -316,26 +250,9 @@ def licznik():  #-----------watek timera
                 spryskiwacz.ostatnieSpryskanie= timer()
                 time.sleep(30)
         #------------
-        timerHalogen()
         time.sleep(10)
 
-def sterowanieHalogenem(): #-----sterowanie halogenem WĄTEK
-    global watekAktywny
-    while(watekAktywny==1):
-        duration = datetime.datetime.now() - lampaHalogen.czasPWM
-        if(duration.total_seconds() >= lampaHalogen.czasPWMustawienie):
-            if(lampaHalogen.pwm > lampaHalogen.pwmWymagane):
-                lampaHalogen.pwm-=1
-                halogen.start(lampaHalogen.pwm)
-            elif (lampaHalogen.pwm < lampaHalogen.pwmWymagane):
-                lampaHalogen.pwm+=1
-                halogen.start(lampaHalogen.pwm)
-            lampaHalogen.czasPWM = datetime.datetime.now()
-        if(lampaHalogen.pwm>0):
-            lampaHalogen.Flaga=True
-        else:
-            lampaHalogen.Flaga=False
-        time.sleep(.1)
+
 
 def thread_sensors_init():
     sensorsTH = threading.Thread(target = sensors.sensorsThread)
@@ -344,6 +261,14 @@ def thread_sensors_init():
 def thread_main_light_init():
     mainLightTH = threading.Thread(target = mainLight.mainLightThread)
     mainLightTH.start()
+
+def thread_heater_init():
+    heaterTH = threading.Thread(target = heater.heaterThread)
+    heaterTH.start()
+
+def thread_heater_pwm_control_init():
+    heaterPwmControlTH = threading.Thread(target = heater.pwmControlThread)
+    heaterPwmControlTH.start()
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #-----START-------------------------------------------------------------------------------------------------------------------------------------------
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -353,8 +278,6 @@ def main():
     log.add_log("Starting...")
 
     terrarium.licznikOczekiwaniaNaCzujniki=120*60
-
-    lampaHalogen.czasPWM = datetime.datetime.now()
     terrarium.ostatnieOdswiezenieCzujnikow = datetime.datetime.now()
 
     terrarium.startTime = timer()
@@ -369,14 +292,12 @@ def main():
     t.start()
     t1 = threading.Thread(target=licznik)
     t1.start()
-    st = threading.Thread(target=sterowanieHalogenem)
-    st.start()
 
     thread_sensors_init()
     thread_main_light_init()
-
+    thread_heater_init()
+    thread_heater_pwm_control_init()
     #--------------- OTHERS -------------------------
-
     terrarium.czasWyslania=datetime.datetime.now()
     czasUruchomieniaMenu=datetime.datetime.now()
     #---------SOCKET INIT--------

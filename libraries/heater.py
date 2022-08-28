@@ -17,22 +17,22 @@ from libraries.log import *
 
 
 class heaterCL:
-    pwm=0
-    pwmWymagane=0
-    flag=False
-    AutoON='11:00:00.0000'
-    AutoOFF='15:30:00.0000'
-    manualControlFlag=False
-    heatControlFlag=False
-    czasPWMustawienie=1.0 #ustawienie czasu narastania pwm
-    czasPWM=0 #zmienna do zapisania czasu ostatniej regulacji
+    pwm = 0
+    pwmWymagane = 0
+    flag = False
+    manualControlFlag = False
+    heatControlFlag = False
+    czasPWMustawienie = 1.0 #ustawienie czasu narastania pwm
+    czasPWM = 0 #zmienna do zapisania czasu ostatniej regulacji
     pid = PID.PID(3, 4, 5)
 
-    def __init__(self, pin, frequency):
+    def __init__(self, pin, frequency, autoOn, autoOff):
         GPIO.setup(pin, GPIO.OUT) #set as output
         self.halogen = GPIO.PWM(pin, frequency)  # DAC start
         self.halogen.start(self.pwm)
         self.czasPWM = datetime.datetime.now()
+        self.AutoON = autoOn
+        self.AutoOFF = autoOff
         #--- PID settings -----
         self.pid.SetPoint = terrarium.tempWymaganaNaWyspie
         self.pid.setSampleTime(60)
@@ -44,20 +44,25 @@ class heaterCL:
             time.sleep(10)
 
     def pwmControlThread(self): #---- THREAD
+        i = 0
         while terrarium.runFlag == True:
             duration = datetime.datetime.now() - self.czasPWM
             if(duration.total_seconds() >= self.czasPWMustawienie):
                 if(self.pwm > self.pwmWymagane):
-                    self.pwm-=1
-                    halogen.start(self.pwm)
+                    self.pwm -= 1
+                    self.halogen.start(self.pwm)
                 elif (self.pwm < self.pwmWymagane):
-                    self.pwm+=1
-                    halogen.start(self.pwm)
+                    self.pwm += 1
+                    self.halogen.start(self.pwm)
                 self.czasPWM = datetime.datetime.now()
             if(self.pwm > 0):
                 self.flag = True
             else:
                 self.flag = False
+            if(i == 10): # 1sec
+                self.sterowanieOgrzewaniem()
+                i = 0
+            i += 1
             time.sleep(.1)
 
     def check_timer(self):
@@ -66,11 +71,11 @@ class heaterCL:
         try:
             zmiennaON = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoON, format) # obliczenie roznicy czasu
         except ValueError as e:
-            print('Blad czasu wł:', e)
+            print('error:', e)
         try:
             zmiennaOFF = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoOFF, format) # obliczenie roznicy czasu
         except ValueError as e:
-            print('Blad czasu wył:', e)
+            print('error:', e)
         #-----skasowanie flag ----------
         if(int(zmiennaON.total_seconds())>(-15) and int(zmiennaON.total_seconds())<0 and  self.manualControlFlag==True):
             self.manualControlFlag=False
@@ -86,14 +91,12 @@ class heaterCL:
             self.heatControlFlag=False
             self.pwmWymagane=0
 
-    def sterowanieOgrzewaniem():
-        if(terrarium.UVI > terrarium.minUVIdlaOgrzewania and self.manualControlFlag == True): #jesli kameleon nie zasłania swiatla
+    def sterowanieOgrzewaniem(self):
+        if(terrarium.UVI > terrarium.minUVIdlaOgrzewania and self.heatControlFlag == True): #jesli kameleon nie zasłania swiatla
             self.pid.update(terrarium.tempG)
-            if(self.manualControlFlag == True):
-                self.pwm = self.pid.output
-                self.pwmWymagane = max(min( int(pwm), 100 ),0)
-                log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {}".format(terrarium.UVI, terrarium.tempG, self.pwmWymagane))
-                log.add_log("flagSterOgrz: {}".format(self.manualControlFlag))
+            if(self.heatControlFlag == True):
+                self.pwmWymagane = max(min( int(self.pid.output), 100 ),0)
+                log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.tempG, self.pwmWymagane, self.heatControlFlag))
 
     def heater_on(self, pin):
         GPIO.output(pin, GPIO.HIGH)
@@ -101,6 +104,4 @@ class heaterCL:
     def heater_off(self, pin):
         GPIO.output(pin, GPIO.LOW)
 
-
-
-heater = heaterCL(13, 50)
+heater = heaterCL(13, 50, '11:00:00.0000', '15:30:00.0000')

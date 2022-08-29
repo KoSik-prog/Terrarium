@@ -10,7 +10,6 @@
 # Copyright:   (c) kosik 2020
 #-------------------------------------------------------------------------------
 import pygame, pygame.mixer, pygame.gfxdraw, glob, time, sys, datetime, smbus, board, busio, adafruit_veml6075, threading, os, timeit
-import RPi.GPIO as GPIO
 from pygame.locals import *
 from pygame.compat import unichr_, unicode_
 from pygame.locals import *
@@ -30,11 +29,6 @@ from libraries.communication import *
 from terrarium import *
 #+++++++++++++++++++++ delay for safety +++++++++++++++++++++++++++
 time.sleep(10)
-#+++++++++++++++++++++++++++++WE/WY++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-GPIO.setmode(GPIO.BCM)
-#GPIO.setup(12, GPIO.OUT) #dripper ENABLE pin
-#GPIO.setup(20, GPIO.OUT) #dripper STEP
-#GPIO.setup(16, GPIO.OUT) #dripper DIR
 ######################################################################################
 def zapis_ustawien_xml():
     setings = ET.Element("settings")

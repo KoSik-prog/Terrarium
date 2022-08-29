@@ -9,12 +9,11 @@
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
 import datetime, PID
-import RPi.GPIO as GPIO
 from timeit import default_timer as timer
 
 from terrarium import *
 from libraries.log import *
-
+from libraries.inout import *
 
 class heater_CL:
     pwm = 0
@@ -27,9 +26,7 @@ class heater_CL:
     pid = PID.PID(3, 4, 5)
 
     def __init__(self, pin, frequency, autoOn, autoOff):
-        GPIO.setup(pin, GPIO.OUT) #set as output
-        self.halogen = GPIO.PWM(pin, frequency)  # DAC start
-        self.halogen.start(self.pwm)
+        gpio.set_as_dac(pin, frequency)
         self.czasPWM = datetime.datetime.now()
         self.AutoON = autoOn
         self.AutoOFF = autoOff
@@ -50,10 +47,10 @@ class heater_CL:
             if(duration.total_seconds() >= self.czasPWMustawienie):
                 if(self.pwm > self.pwmWymagane):
                     self.pwm -= 1
-                    self.halogen.start(self.pwm)
+                    gpio.set_heater_pwm(self.pwm)
                 elif (self.pwm < self.pwmWymagane):
                     self.pwm += 1
-                    self.halogen.start(self.pwm)
+                    gpio.set_heater_pwm(self.pwm)
                 self.czasPWM = datetime.datetime.now()
             if(self.pwm > 0):
                 self.flag = True
@@ -97,11 +94,5 @@ class heater_CL:
             if(self.heatControlFlag == True):
                 self.pwmWymagane = max(min( int(self.pid.output), 100 ),0)
                 #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.tempG, self.pwmWymagane, self.heatControlFlag))
-
-    def heater_on(self, pin):
-        GPIO.output(pin, GPIO.HIGH)
-
-    def heater_off(self, pin):
-        GPIO.output(pin, GPIO.LOW)
 
 heater = heater_CL(13, 50, '11:00:00.0000', '15:30:00.0000')

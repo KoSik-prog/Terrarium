@@ -9,11 +9,11 @@
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
 from timeit import default_timer as timer
-import RPi.GPIO as GPIO
 import time
 
 from terrarium import *
 from libraries.log import *
+from libraries.inout import *
 
 class sprayerCL:
     on1H=9
@@ -26,14 +26,14 @@ class sprayerCL:
     ostatnieSpryskanie = 0
 
     def __init__(self, pin):
-        GPIO.setup(pin, GPIO.OUT)
+        gpio.set_as_output(pin)
         self.pin = pin
         self.ostatnieSpryskanie = timer()
 
     def sprayer_thread(self):
         czas1='09'  #w tych godzinach aktywne dodatkowe spryskiwanie
         czas2='18'
-        self.sprayer_off(self.pin)
+        gpio.sprayer_off(self.pin)
 
         while(terrarium.runFlag == True):
             end = timer()
@@ -55,9 +55,9 @@ class sprayerCL:
     def spray_terrarium(self, sprayTime):
         log.add_log('Spraying!')
         self.flaga = True
-        self.sprayer_on(self.pin)
+        gpio.sprayer_on(self.pin)
         time.sleep(int(sprayTime))
-        self.sprayer_off(self.pin)
+        gpio.sprayer_off(self.pin)
         self.flaga = False
         self.ostatnieSpryskanie = timer()
 
@@ -67,12 +67,5 @@ class sprayerCL:
 
     def format_time(self, hour, minute):
         return '{:02d}:{:02d}'.format(hour, minute)
-
-    def sprayer_on(self, pin):
-        GPIO.output(pin, GPIO.HIGH)
-
-    def sprayer_off(self, pin):
-        GPIO.output(pin, GPIO.LOW)
-
 
 sprayer = sprayerCL(21)

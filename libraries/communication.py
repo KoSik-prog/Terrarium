@@ -17,6 +17,7 @@ class socket_CL:
     bufferSize = 1024
 
     def __init__(self, address, port):
+        self.address = address
         self.serverAddressPort = (address, port)
         terrarium.socketLastSendTime = datetime.datetime.now()
         self.UDPClientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)

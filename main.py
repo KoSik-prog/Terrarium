@@ -9,12 +9,7 @@
 # Created:     06.08.2020
 # Copyright:   (c) kosik 2020
 #-------------------------------------------------------------------------------
-import pygame, pygame.mixer, pygame.gfxdraw, glob, time, sys, datetime, smbus, board, busio, adafruit_veml6075, threading, os, timeit
-from pygame.locals import *
-from pygame.compat import unichr_, unicode_
-from pygame.locals import *
-from pygame.compat import geterror
-import xml.etree.cElementTree as ET
+import glob, time, sys, datetime, threading, os, timeit
 
 from timeit import default_timer as timer
 
@@ -26,24 +21,12 @@ from libraries.sprayer import *
 from libraries.display import *
 from libraries.gui import *
 from libraries.communication import *
+from libraries.settings import *
 from terrarium import *
 #+++++++++++++++++++++ delay for safety +++++++++++++++++++++++++++
 time.sleep(10)
 ######################################################################################
-def zapis_ustawien_xml():
-    setings = ET.Element("settings")
 
-    ET.SubElement(setings, "minWilgotnosc").text = str(terrarium.minWilgotnosc)
-
-    tree2 = ET.ElementTree(setings)
-    tree2.write('Desktop/terra/ustawienia.xml')
-    log.add_log("Zapisano ustawienia")
-
-def odczyt_ustawien_xml():
-    tree = ET.ElementTree(file='Desktop/terra/ustawienia.xml')
-    root = tree.getroot()
-
-    terrarium.minWilgotnosc = int(root.find('minWilgotnosc').text)
 #++++++++++++++++ THREADS DEFINITIONS ++++++++++++++++++++++++++++++++++++++++++++++++++
 def thread_sensors_init():
     sensorsTH = threading.Thread(target = sensors.sensors_thread)
@@ -78,8 +61,8 @@ def thread_touch_init():
 def main():
     log.add_log("Starting...")
 
-    zapis_ustawien_xml()
-    odczyt_ustawien_xml()
+    settings.zapis_ustawien_xml()
+    settings.odczyt_ustawien_xml()
     #-------------THREADS INIT--------------------------------
     thread_sensors_init()
     thread_main_light_init()

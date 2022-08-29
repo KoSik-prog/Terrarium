@@ -35,6 +35,10 @@ class gui_CL:
                 self.menuSpryskiwacz()
             time.sleep(tfps)   
 
+    def touch_thread(self):
+        while(terrarium.runFlag == True):
+            self.touch_event()
+
     def wysw(self):
         pozycjaIkon=5
         display.icons(0,0,255,"tlo")
@@ -149,5 +153,94 @@ class gui_CL:
         display.przycisk(display.screen, (690,390,100,80) ,(120,120,120), (15,15,15), 10, 2)
         display.napis(display.screen, "<","Nimbus Sans L",120,716,375,(0,0,0),255)
         pygame.display.update()
+
+    def touch_event(self):
+        for event in pygame.event.get():
+            if event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE:
+                terrarium.runFlag = False
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                px=event.pos[0]
+                py=event.pos[1]
+                czasUruchomieniaMenu=datetime.datetime.now()
+                #zapis_dziennika_zdarzen ("You pressed the left mouse button at ({}, {})".format(px,py))
+                #+++++OBSLUGA DOTYKU WYSWIETLACZA +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                #--- strona 0 (glowna)----------
+                if(gui.aktywnaStrona==0):
+                    if(px>0 and px<400 and py>0 and py<480):
+                        gui.aktywnaStrona=1
+                        pygame.event.clear
+                    elif(px>630 and px<800 and py>0 and py<150):
+                        terrarium.runFlag = False
+                        time.sleep(1)
+                        pygame.quit()
+                        sys.exit()
+                        pygame.event.clear
+                #---strona 1 (menu)-------------
+                elif(gui.aktywnaStrona==1):
+                    if(px>30 and px<330 and py>60 and py<180):
+                        gui.aktywnaStrona=2
+                        pygame.event.clear
+                    elif(px>30 and px<330 and py>220 and py<340):
+                        gui.aktywnaStrona=3
+                        pygame.event.clear
+                    elif(px>690 and px<800 and py>390 and py<480):
+                        gui.aktywnaStrona=0
+                        pygame.event.clear
+                #---strona 2 (spryskanie)-------------
+                elif(gui.aktywnaStrona==2):
+                    if(px>200 and px<280 and py>10 and py<60):  #godz1 -
+                        sprayer.on1H-=1
+                        if(sprayer.on1H<0):
+                            sprayer.on1H=23
+                    if(px>200 and px<280 and py>60 and py<110): #godz1 +
+                        sprayer.on1H+=1
+                        if(sprayer.on1H>23):
+                            sprayer.on1H=0
+                    if(px>505 and px<585 and py>10 and py<60):  #min1 -
+                        sprayer.on1M-=1
+                        if(sprayer.on1M<0):
+                            sprayer.on1M=59
+                    if(px>505 and px<585 and py>60 and py<110): #min1 +
+                        sprayer.on1M+=1
+                        if(sprayer.on1M>59):
+                            sprayer.on1M=0
+                    #--------
+                    if(px>200 and px<280 and py>140 and py<190):  #godz2 -
+                        sprayer.on2H-=1
+                        if(sprayer.on2H<0):
+                            sprayer.on2H=23
+                    if(px>200 and px<280 and py>190 and py<240): #godz2 +
+                        sprayer.on2H+=1
+                        if(sprayer.on2H>23):
+                            sprayer.on2H=0
+                    if(px>505 and px<585 and py>140 and py<190):  #min2 -
+                        sprayer.on2M-=1
+                        if(sprayer.on2M<0):
+                            sprayer.on2M=59
+                    if(px>505 and px<585 and py>190 and py<240): #min2 +
+                        sprayer.on2M+=1
+                        if(sprayer.on2M>59):
+                            sprayer.on2M=0
+                    #--------
+                    if(px>420 and px<500 and py>270 and py<350):  #czas spryskiwania -
+                        if(sprayer.czasSpryskiwania > 5):
+                            sprayer.czasSpryskiwania -= 2
+                    if(px>710 and px<790 and py>270 and py<350):  #czas spryskiwania +
+                        if(sprayer.czasSpryskiwania < 50):
+                            sprayer.czasSpryskiwania += 2
+                    #--------
+                    if(px>530 and px<610 and py>380 and py<480):  #spryskiwanie manualne
+                        sprayer.spray_terrarium(sprayer.czasSpryskiwania)
+                        pygame.event.clear
+                    if(px>240 and px<320 and py>380 and py<430): #sprysk manualne -
+                        if(sprayer.czasSpryskManual>5):
+                            sprayer.czasSpryskManual-=2
+                    if(px>240 and px<320 and py>430 and py<480):  #sprysk manualne +
+                        sprayer.czasSpryskManual+=2
+                    if(px>690 and px<800 and py>390 and py<480):
+                        gui.aktywnaStrona=1
+                #---------------------
 
 gui = gui_CL()

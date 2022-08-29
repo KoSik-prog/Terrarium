@@ -27,5 +27,10 @@ class socket_CL:
         self.UDPClientSocket.sendto(bytesToSend, self.serverAddressPort)
         log.add_log("send to {} -> message: {}".format(messageToSend, self.address))
         terrarium.socketLastSendTime = datetime.datetime.now()
+
+    def send_message_to_server(self):
+        if((datetime.datetime.now() - terrarium.socketLastSendTime) > (datetime.timedelta(minutes = terrarium.interwalWysylania))):
+            self.send_message("terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVI))
+            log.add_log("Temp1: {:.1f} C / Wilg1: {:.0f}%RH  /  Temp2: {:.1f} C / Wilg2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVA,terrarium.UVB,terrarium.UVI))
         
 socket = socket_CL("192.168.0.99", 2222)

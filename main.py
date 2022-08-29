@@ -68,6 +68,10 @@ def thread_sprayer_init():
 def thread_gui_init():
     guiTH = threading.Thread(target = gui.gui_thread)
     guiTH.start()
+
+def thread_touch_init():
+    touchTH = threading.Thread(target = gui.touch_thread)
+    touchTH.start()
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #-----START-------------------------------------------------------------------------------------------------------------------------------------------
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -83,106 +87,12 @@ def main():
     thread_heater_pwm_control_init()
     thread_sprayer_init()
     thread_gui_init()
-    #------ OTHERS -------------------------------------------
-    czasUruchomieniaMenu=datetime.datetime.now()
+    thread_touch_init()
     #--------------MAIN FUNCTION------------------------------
     while(1):
         #---------------WYSYLANIE-----------------------------
-        if((datetime.datetime.now() - terrarium.socketLastSendTime) > (datetime.timedelta(minutes = terrarium.interwalWysylania))):
-            socket.send_message("terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVI))
-            log.add_log("Temp1: {:.1f} C / Wilg1: {:.0f}%RH  /  Temp2: {:.1f} C / Wilg2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.tempG,terrarium.wilgG,terrarium.tempD,terrarium.wilgD,terrarium.UVA,terrarium.UVB,terrarium.UVI))
-
-        for event in pygame.event.get():
-            if event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE:
-                terrarium.runFlag = False
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                px=event.pos[0]
-                py=event.pos[1]
-                czasUruchomieniaMenu=datetime.datetime.now()
-                #zapis_dziennika_zdarzen ("You pressed the left mouse button at ({}, {})".format(px,py))
-                #+++++OBSLUGA DOTYKU WYSWIETLACZA +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                #--- strona 0 (glowna)----------
-                if(gui.aktywnaStrona==0):
-                    if(px>0 and px<400 and py>0 and py<480):
-                        gui.aktywnaStrona=1
-                        pygame.event.clear
-                    elif(px>630 and px<800 and py>0 and py<150):
-                        terrarium.runFlag = False
-                        time.sleep(1)
-                        pygame.quit()
-                        sys.exit()
-                        pygame.event.clear
-                #---strona 1 (menu)-------------
-                elif(gui.aktywnaStrona==1):
-                    if(px>30 and px<330 and py>60 and py<180):
-                        gui.aktywnaStrona=2
-                        pygame.event.clear
-                    elif(px>30 and px<330 and py>220 and py<340):
-                        gui.aktywnaStrona=3
-                        pygame.event.clear
-                    elif(px>690 and px<800 and py>390 and py<480):
-                        gui.aktywnaStrona=0
-                        pygame.event.clear
-                #---strona 2 (spryskanie)-------------
-                elif(gui.aktywnaStrona==2):
-                    if(px>200 and px<280 and py>10 and py<60):  #godz1 -
-                        sprayer.on1H-=1
-                        if(sprayer.on1H<0):
-                            sprayer.on1H=23
-                    if(px>200 and px<280 and py>60 and py<110): #godz1 +
-                        sprayer.on1H+=1
-                        if(sprayer.on1H>23):
-                            sprayer.on1H=0
-                    if(px>505 and px<585 and py>10 and py<60):  #min1 -
-                        sprayer.on1M-=1
-                        if(sprayer.on1M<0):
-                            sprayer.on1M=59
-                    if(px>505 and px<585 and py>60 and py<110): #min1 +
-                        sprayer.on1M+=1
-                        if(sprayer.on1M>59):
-                            sprayer.on1M=0
-                    #--------
-                    if(px>200 and px<280 and py>140 and py<190):  #godz2 -
-                        sprayer.on2H-=1
-                        if(sprayer.on2H<0):
-                            sprayer.on2H=23
-                    if(px>200 and px<280 and py>190 and py<240): #godz2 +
-                        sprayer.on2H+=1
-                        if(sprayer.on2H>23):
-                            sprayer.on2H=0
-                    if(px>505 and px<585 and py>140 and py<190):  #min2 -
-                        sprayer.on2M-=1
-                        if(sprayer.on2M<0):
-                            sprayer.on2M=59
-                    if(px>505 and px<585 and py>190 and py<240): #min2 +
-                        sprayer.on2M+=1
-                        if(sprayer.on2M>59):
-                            sprayer.on2M=0
-                    #--------
-                    if(px>420 and px<500 and py>270 and py<350):  #czas spryskiwania -
-                        if(sprayer.czasSpryskiwania > 5):
-                            sprayer.czasSpryskiwania -= 2
-                    if(px>710 and px<790 and py>270 and py<350):  #czas spryskiwania +
-                        if(sprayer.czasSpryskiwania < 50):
-                            sprayer.czasSpryskiwania += 2
-                    #--------
-                    if(px>530 and px<610 and py>380 and py<480):  #spryskiwanie manualne
-                        sprayer.spray_terrarium(sprayer.czasSpryskiwania)
-                        pygame.event.clear
-                    if(px>240 and px<320 and py>380 and py<430): #sprysk manualne -
-                        if(sprayer.czasSpryskManual>5):
-                            sprayer.czasSpryskManual-=2
-                    if(px>240 and px<320 and py>430 and py<480):  #sprysk manualne +
-                        sprayer.czasSpryskManual+=2
-                    if(px>690 and px<800 and py>390 and py<480):
-                        gui.aktywnaStrona=1
-                #---------------------
-        czas1=datetime.datetime.now()-czasUruchomieniaMenu #powrot do glownego ekranu jesli bezczynny
-        if(czas1.total_seconds()>=120):  # po dwoch minutach
-            gui.aktywnaStrona=0
-        time.sleep(.5)
+        socket.send_message_to_server()
+        time.sleep(1)
     pass
 
 if __name__ == '__main__':

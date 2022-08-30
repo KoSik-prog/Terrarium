@@ -47,9 +47,9 @@ class gui_CL:
             display.icons(10, pozycjaIkon,255,"zarowka1")
             pozycjaIkon += 125
 
-        if(heater.flag == 1):
+        if(gpio.check_heater_flag() == 1):
             display.icons(10, pozycjaIkon, 255,"zarowka2")
-            dl=display.napis_centralny(display.screen, "{}%".format(heater.pwm), "Nimbus Sans L", 48, 70, pozycjaIkon+50, (235, 0, 69), 255)
+            dl=display.napis_centralny(display.screen, "{}%".format(gpio.read_heater_pwm()), "Nimbus Sans L", 48, 70, pozycjaIkon+50, (235, 0, 69), 255)
             pozycjaIkon += 125
 
         if(sprayer.flaga == True):

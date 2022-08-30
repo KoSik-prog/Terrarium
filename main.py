@@ -40,10 +40,6 @@ def thread_heater_init():
     heaterTH = threading.Thread(target = heater.heater_thread)
     heaterTH.start()
 
-def thread_heater_pwm_control_init():
-    heaterPwmControlTH = threading.Thread(target = heater.pwm_control_thread)
-    heaterPwmControlTH.start()
-
 def thread_sprayer_init():
     sprayerTH = threading.Thread(target = sprayer.sprayer_thread)
     sprayerTH.start()
@@ -67,7 +63,6 @@ def main():
     thread_sensors_init()
     thread_main_light_init()
     thread_heater_init()
-    thread_heater_pwm_control_init()
     thread_sprayer_init()
     thread_gui_init()
     thread_touch_init()

@@ -22,7 +22,7 @@ class terrariumCl:   #TERRARIUM
     socketLastSendTime = 0
     interwalWysylania = 5
     minWilgotnosc = 50
-    tempWymaganaNaWyspie = 29.0 #temp wymagana na wyspie
+    tempWymaganaNaWyspie = 35.0 #temp wymagana na wyspie
     minUVIdlaOgrzewania = 0.15 #index UVI przy ktorym zalacza sie ogrzewanie / nie zalacza gdy kameleon zaslania czujnik
     staraTempG = 0.0
     staraWilgG = 0.0

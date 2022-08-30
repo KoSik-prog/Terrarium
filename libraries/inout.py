@@ -13,21 +13,35 @@ import RPi.GPIO as GPIO
 from libraries.log import *
 
 class gpio_CL:
-    halogen = None
+    heater = None #kontener
+    heaterFlag = False
+    heaterPwm = 0
     
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
         #GPIO.setup(12, GPIO.OUT) #dripper ENABLE pin
         #GPIO.setup(20, GPIO.OUT) #dripper STEP
         #GPIO.setup(16, GPIO.OUT) #dripper DIR
 
     def set_heater_pwm(self, pwm):
-        self.halogen.start(self.pwm)
+        self.heater.start(pwm)
+        self.heaterPwm = pwm
+        if pwm > 0:
+            self.heaterFlag = True
+        else:
+            self.heaterFlag = False
 
     def set_as_dac(self, pin, frequency): #PWM
         self.set_as_output(pin)
-        self.halogen = GPIO.PWM(pin, frequency)  # DAC start
-        self.halogen.start(0)
+        self.heater = GPIO.PWM(pin, frequency)  # DAC start
+        self.heater.start(0)
+
+    def check_heater_flag(self):
+        return self.heaterFlag
+
+    def read_heater_pwm(self):
+        return self.heaterPwm
 
     def set_as_output(self, pin):
         GPIO.setup(pin, GPIO.OUT)

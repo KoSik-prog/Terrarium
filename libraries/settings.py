@@ -16,7 +16,7 @@ from terrarium import *
 
 class settings_CL:
     def __init__(self, filePath):
-        self.filePath + = filePath
+        self.filePath = filePath
 
     def zapis_ustawien_xml(self):
         setings = ET.Element("settings")

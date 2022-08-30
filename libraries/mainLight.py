@@ -20,7 +20,7 @@ class MAIN_LIGHT_CL:
     flag = False
     dimmingTime = 12 #czas stopniowego wygaszania w minutach
     manualControlFlag = False
-    timeToResume = 30 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
+    timeToResume = 120 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
 
     def __init__(self, pin, AutoON, AutoOFF):
         gpio.set_as_output(pin)

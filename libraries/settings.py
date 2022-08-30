@@ -15,7 +15,8 @@ from libraries.log import *
 from terrarium import *
 
 class settings_CL:
-    #def __init__(self):
+    def __init__(self, filePath):
+        self.filePath + = filePath
 
     def zapis_ustawien_xml(self):
         setings = ET.Element("settings")
@@ -23,14 +24,14 @@ class settings_CL:
         ET.SubElement(setings, "minWilgotnosc").text = str(terrarium.minWilgotnosc)
 
         tree2 = ET.ElementTree(setings)
-        tree2.write('Desktop/terra/ustawienia.xml')
-        log.add_log("Zapisano ustawienia")
+        tree2.write(self.filePath + 'ustawienia.xml')
+        log.add_log("Settings saved")
 
     def odczyt_ustawien_xml(self):
-        tree = ET.ElementTree(file='Desktop/terra/ustawienia.xml')
+        tree = ET.ElementTree(file= self.filePath + 'ustawienia.xml')
         root = tree.getroot()
 
         terrarium.minWilgotnosc = int(root.find('minWilgotnosc').text)
-        log.add_log("Odczytano ustawienia")
+        log.add_log("Settings loaded")
 
-settings = settings_CL()
+settings = settings_CL('Desktop/terra/')

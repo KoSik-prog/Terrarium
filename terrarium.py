@@ -12,23 +12,17 @@ import datetime
 from timeit import default_timer as timer
 
 class terrariumCl:   #TERRARIUM
-    tempG = 0.0
-    wilgG = 0.0
-    tempD = 0.0
-    wilgD = 0.0
+    temperatureTop = 0.0
+    humidityTop = 0.0
+    temperatureBottom = 0.0
+    humidityBottom = 0.0
     UVA = 0.0
     UVB = 0.0
     UVI = 0.0
-    socketLastSendTime = 0
-    interwalWysylania = 5
-    minWilgotnosc = 50
-    tempWymaganaNaWyspie = 35.0 #temp wymagana na wyspie
-    minUVIdlaOgrzewania = 0.15 #index UVI przy ktorym zalacza sie ogrzewanie / nie zalacza gdy kameleon zaslania czujnik
-    staraTempG = 0.0
-    staraWilgG = 0.0
-    staraTempD = 0.0
-    staraWilgD = 0.0
-    staraUVA = 0.0
+    socked_message_interval = 5
+    minimumHumidity = 50
+    temperature_required_island = 29.0 #temp wymagana na wyspie
+    minUviForHeating = 0.15 #index UVI przy ktorym zalacza sie ogrzewanie / nie zalacza gdy kameleon zaslania czujnik
     #czasOczekiwaniaNaCzujniki = 90   #w minutach oczekiwanie na zmianę wartosci czujnikow (dla wykrywania bledow)
     runFlag = True #flaga utrzymujaca watki
     startTime = 0
@@ -42,5 +36,14 @@ class terrariumCl:   #TERRARIUM
         self.mainLightLastUpdateTime = datetime.datetime.now()
         self.heaterLastUpdateTime = datetime.datetime.now()
         self.startTime = timer()
+
+    def read_requred_island_temperature(self):
+        return self.temperature_required_island
+
+    def read_socket_message_interval(self):
+        return self.socked_message_interval
+
+    def return_socket_message(self):
+        return "terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(self.temperatureTop, self.humidityTop, self.temperatureBottom, self.humidityBottom, self.UVI)
         
-terrarium = terrariumCl
+terrarium = terrariumCl()

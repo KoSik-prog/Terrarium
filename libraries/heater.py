@@ -16,7 +16,7 @@ from libraries.log import *
 from libraries.inout import *
 
 class heater_CL:
-    pwmWymagane = 0
+    pwmRequired = 0
     manualControlFlag = False
     heatControlFlag = False
     pmwChangeTime = 1#s czas w sekundach pomiedzy kazdym %PWM
@@ -30,7 +30,7 @@ class heater_CL:
         self.AutoON = autoOn
         self.AutoOFF = autoOff
         #--- PID settings -----
-        self.pid.SetPoint = terrarium.tempWymaganaNaWyspie
+        self.pid.SetPoint = terrarium.read_requred_island_temperature()
         self.pid.setSampleTime(60)
 
     def heater_thread(self): #---- THREAD
@@ -45,9 +45,9 @@ class heater_CL:
             if self.heatControlFlag == True:
                 duration = datetime.datetime.now() - self.timeLastUpdatePwm
                 if(duration.total_seconds() >= self.pmwChangeTime):
-                    if(gpio.read_heater_pwm() > self.pwmWymagane):
+                    if(gpio.read_heater_pwm() > self.pwmRequired):
                         gpio.set_heater_pwm(gpio.read_heater_pwm() - 1)
-                    elif (gpio.read_heater_pwm() < self.pwmWymagane):
+                    elif (gpio.read_heater_pwm() < self.pwmRequired):
                         gpio.set_heater_pwm(gpio.read_heater_pwm() + 1)
                     self.timeLastUpdatePwm = datetime.datetime.now()
                 if(i == 10): # 1sec
@@ -67,37 +67,37 @@ class heater_CL:
 
     def check_timer(self):
         format = '%H:%M:%S.%f'
-        aktual=datetime.datetime.now().time()
+        actualTime=datetime.datetime.now().time()
         try:
-            zmiennaON = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoON, format) # obliczenie roznicy czasu
+            stampOn = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoON, format) # obliczenie roznicy czasu
         except ValueError as e:
-            print('error:', e)
+            log.add_error_log('error:', e)
         try:
-            zmiennaOFF = datetime.datetime.strptime(str(aktual), format) - datetime.datetime.strptime(self.AutoOFF, format) # obliczenie roznicy czasu
+            stampOff = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoOFF, format) # obliczenie roznicy czasu
         except ValueError as e:
-            print('error:', e)
-        #-----skasowanie flag ----------
-        if(int(zmiennaON.total_seconds())>(-15) and int(zmiennaON.total_seconds())<0 and  self.manualControlFlag==True):
+            log.add_error_log('error:', e)
+        #----- clear flags ----------
+        if(int(stampOn.total_seconds())>(-15) and int(stampOn.total_seconds())<0 and  self.manualControlFlag==True):
             self.manualControlFlag=False
-        if(int(zmiennaOFF.total_seconds())>(-15) and int(zmiennaOFF.total_seconds())<0 and self.manualControlFlag==True):
+        if(int(stampOff.total_seconds())>(-15) and int(stampOff.total_seconds())<0 and self.manualControlFlag==True):
             self.manualControlFlag=False
-        #------SPRAWDZENIE------------------------
-        if(self.heatControlFlag==False and (int(zmiennaON.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<(-60)) and self.manualControlFlag==False):
+        #------ check ------------------------
+        if(self.heatControlFlag==False and (int(stampOn.total_seconds())>0) and (int(stampOff.total_seconds())<(-60)) and self.manualControlFlag==False):
             self.pmwChangeTime=1.0
             self.heatControlFlag=True
             heaterPwmControlTH = threading.Thread(target = self.pwm_control_thread)
             log.add_log("AUTO Heater -> ON")
             heaterPwmControlTH.start()  #run thread
-        if(self.heatControlFlag==True and (int(zmiennaOFF.total_seconds())>0) and (int(zmiennaOFF.total_seconds())<60)): # and self.manualControlFlag==False):# and s.is_alive()==True):
+        if(self.heatControlFlag==True and (int(stampOff.total_seconds())>0) and (int(stampOff.total_seconds())<60)): # and self.manualControlFlag==False):# and s.is_alive()==True):
             log.add_log("AUTO Heater -> OFF")
             self.heatControlFlag=False
-            self.pwmWymagane=0
+            self.pwmRequired=0
 
     def heating_control(self):
-        if(terrarium.UVI > terrarium.minUVIdlaOgrzewania and self.heatControlFlag == True): #jesli kameleon nie zasłania swiatla
-            self.pid.update(terrarium.tempG)
+        if(terrarium.UVI > terrarium.minUviForHeating and self.heatControlFlag == True): #jesli kameleon nie zasłania swiatla
+            self.pid.update(terrarium.temperatureTop)
             if(self.heatControlFlag == True):
-                self.pwmWymagane = max(min( int(self.pid.output), 100 ),0)
-                #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.tempG, self.pwmWymagane, self.heatControlFlag))
+                self.pwmRequired = max(min( int(self.pid.output), 100 ),0)
+                #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.temperatureTop, self.pwmRequired, self.heatControlFlag))
 
 heater = heater_CL(13, 50, '11:00:00.0000', '17:30:00.0000')

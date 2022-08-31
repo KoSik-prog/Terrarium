@@ -13,7 +13,7 @@ import RPi.GPIO as GPIO
 from libraries.log import *
 
 class gpio_CL:
-    heater = None #kontener
+    heater = None #object container
     heaterFlag = False
     heaterPwm = 0
     

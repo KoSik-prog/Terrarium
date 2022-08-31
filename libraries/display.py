@@ -27,12 +27,12 @@ class display_CL:
     
     def __init__(self):
         pygame.mouse.set_cursor((8,8), (0,0), (0,0,0,0,0,0,0,0), (0,0,0,0,0,0,0,0))
-        self.Tlo = self.load_image("tlo.jpg")
-        self.zarowka1 = self.load_image("zarowka1.gif")
-        self.zarowka2 = self.load_image("zarowka2.gif")
-        self.wentylator = self.load_image("fan.gif")
+        self.background = self.load_image("tlo.jpg")
+        self.bulb1 = self.load_image("zarowka1.gif")
+        self.bulb2 = self.load_image("zarowka2.gif")
+        self.fan = self.load_image("fan.gif")
         self.dripper = self.load_image("dripper.gif")
-        self.sprysk = self.load_image("sprysk.gif")
+        self.sprayer = self.load_image("sprysk.gif")
 
     def box(self, screen, x, y, w, h, color):
         pygame.gfxdraw.box(screen, Rect((x,y),(w,h)), color)
@@ -62,7 +62,7 @@ class display_CL:
         rect_tmp.center = rect.center
         pygame.draw.rect(surface, color, rect_tmp)
 
-    def przycisk(self, surface, rect, color, border_color, corner_radius, border_thickness):
+    def button(self, surface, rect, color, border_color, corner_radius, border_thickness):
         if corner_radius < 0:
             raise ValueError("border radius ({corner_radius}) must be >= 0")
 
@@ -85,21 +85,21 @@ class display_CL:
         else:
             self.draw_rounded_rect(surface, rect_tmp, color, inner_radius)
 
-    def napis(self, screen, tekst, font, rozmiar, x, y, color, alpha):
+    def label(self, screen, tekst, font, rozmiar, x, y, color, alpha):
         a_sys_font = pygame.font.SysFont(font, rozmiar)
         text = a_sys_font.render(tekst,True, color)
         text.set_alpha(alpha)
         screen.blit(text, (x, y))
         return text.get_width()
 
-    def napis_centralny(self, screen, tekst, font, rozmiar, x, y, color, alpha):
+    def label_center(self, screen, tekst, font, rozmiar, x, y, color, alpha):
         a_sys_font = pygame.font.SysFont(font, rozmiar)
         text = a_sys_font.render(tekst,True, color)
         text.set_alpha(alpha)
         screen.blit(text, (x-(text.get_width()/2), y))
         return text.get_width()
 
-    def napis_tlo(self, screen, tekst, font, rozmiar, x, y, color, alpha,bgcolor):
+    def label_with_background(self, screen, tekst, font, rozmiar, x, y, color, alpha, bgcolor):
         a_sys_font = pygame.font.SysFont(font, rozmiar)
         text = a_sys_font.render(tekst,True, color)
         text.set_alpha(alpha)
@@ -119,18 +119,18 @@ class display_CL:
         return image
 
     def icons(self, osx ,osy, alpha, nazwa):
-        if(nazwa == "tlo"):
-            foto=self.Tlo.convert()
-        if(nazwa == "zarowka1"):
-            foto=self.zarowka1.convert()
-        if(nazwa == "zarowka2"):
-            foto=self.zarowka2.convert()
-        if(nazwa == "wentylator"):
-            foto=self.wentylator.convert()
+        if(nazwa == "background"):
+            foto=self.background.convert()
+        if(nazwa == "bulb1"):
+            foto=self.bulb1.convert()
+        if(nazwa == "bulb2"):
+            foto=self.bulb2.convert()
+        if(nazwa == "fan"):
+            foto=self.fan.convert()
         if(nazwa == "dripper"):
             foto=self.dripper.convert()
-        if(nazwa == "spryskiwacz"):
-            foto=self.sprysk.convert()
+        if(nazwa == "sprayer"):
+            foto=self.sprayer.convert()
         foto.set_alpha(alpha)
         self.screen.blit(foto, (osx, osy))
 

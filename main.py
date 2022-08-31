@@ -57,8 +57,8 @@ def thread_touch_init():
 def main():
     log.add_log("Starting...")
 
-    settings.zapis_ustawien_xml()
-    settings.odczyt_ustawien_xml()
+    settings.save_settings()
+    settings.load_settings()
     #-------------THREADS INIT--------------------------------
     thread_sensors_init()
     thread_main_light_init()

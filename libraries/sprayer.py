@@ -20,19 +20,18 @@ class sprayerCL:
     on1M=0
     on2H=15
     on2M=0
-    czasSpryskiwania=12
-    czasSpryskManual=5
-    flaga = False
-    ostatnieSpryskanie = 0
+    sprayingTime=12
+    flag = False
+    lastSpraying = 0
 
     def __init__(self, pin):
         gpio.set_as_output(pin)
         self.pin = pin
-        self.ostatnieSpryskanie = timer()
+        self.lastSpraying = timer()
 
     def sprayer_thread(self):
-        czas1='09'  #w tych godzinach aktywne dodatkowe spryskiwanie
-        czas2='18'
+        hour1='09'  #w tych godzinach aktywne dodatkowe spryskiwanie
+        minutes1='18'
         gpio.sprayer_off(self.pin)
 
         while(terrarium.runFlag == True):
@@ -41,25 +40,25 @@ class sprayerCL:
             if timeNow == self.format_time(self.on1H, self.on1M):
                 print(timeNow)
                 if timeNow == self.format_time(self.on2H, self.on2M):
-                    self.spray_terrarium(self.czasSpryskiwania)
+                    self.spray_terrarium(self.sprayingTime)
                     time.sleep(50)
             #-------------------------------------
             teraz = datetime.datetime.now()
-            if(int(teraz.hour) >= int(czas1) and int(teraz.hour) <= int(czas2)):
-                if(terrarium.wilgD > 5 and terrarium.wilgD < terrarium.minWilgotnosc and (end - self.ostatnieSpryskanie)>300):
-                    self.spray_terrarium(self.czasSpryskiwania)
+            if(int(teraz.hour) >= int(hour1) and int(teraz.hour) <= int(minutes1)):
+                if(terrarium.humidityBottom > 5 and terrarium.humidityBottom < terrarium.minimumHumidity and (end - self.lastSpraying)>300):
+                    self.spray_terrarium(self.sprayingTime)
                     time.sleep(50)
             #------------
             time.sleep(10)
 
     def spray_terrarium(self, sprayTime):
         log.add_log('Spraying!')
-        self.flaga = True
+        self.flag = True
         gpio.sprayer_on(self.pin)
         time.sleep(int(sprayTime))
         gpio.sprayer_off(self.pin)
-        self.flaga = False
-        self.ostatnieSpryskanie = timer()
+        self.flag = False
+        self.lastSpraying = timer()
 
     def time_now(self):
         nowtime = datetime.datetime.now()

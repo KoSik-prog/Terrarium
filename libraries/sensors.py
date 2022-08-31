@@ -45,7 +45,6 @@ class sensorsCL:
         terrarium.UVB = self.UVB
         self.add_to_array(self.dataArrayUVB, self.UVB)
         terrarium.UVI = self.UVI
-        #print('res: ' + str(self.are_sensors_ok()))
         if self.are_sensors_ok == False:
             system.restart('RESET! -> sensors error')
 
@@ -74,10 +73,10 @@ class sensorsCL:
         self.run_temperature_sensor(self.address_temp_top)
         self.run_temperature_sensor(self.address_temp_bottom)
         time.sleep(0.5)
-        terrarium.tempG, terrarium.wilgG = self.read_temp_humi(self.address_temp_top)
-        terrarium.tempD, terrarium.wilgD = self.read_temp_humi(self.address_temp_bottom)
-        self.add_to_array(self.dataArrayTempTop, terrarium.tempG)
-        self.add_to_array(self.dataArrayTempBottom, terrarium.tempD)
+        terrarium.temperatureTop, terrarium.humidityTop = self.read_temp_humi(self.address_temp_top)
+        terrarium.temperatureBottom, terrarium.humidityBottom = self.read_temp_humi(self.address_temp_bottom)
+        self.add_to_array(self.dataArrayTempTop, terrarium.temperatureTop)
+        self.add_to_array(self.dataArrayTempBottom, terrarium.temperatureBottom)
         self.i2c_bus_deinit()
 
     def are_sensors_ok(self):

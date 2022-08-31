@@ -18,20 +18,20 @@ class settings_CL:
     def __init__(self, filePath):
         self.filePath = filePath
 
-    def zapis_ustawien_xml(self):
+    def save_settings(self):
         setings = ET.Element("settings")
 
-        ET.SubElement(setings, "minWilgotnosc").text = str(terrarium.minWilgotnosc)
+        ET.SubElement(setings, "minHumidity").text = str(terrarium.minimumHumidity)
 
         tree2 = ET.ElementTree(setings)
-        tree2.write(self.filePath + 'ustawienia.xml')
+        tree2.write(self.filePath + 'settings.xml')
         log.add_log("Settings saved")
 
-    def odczyt_ustawien_xml(self):
-        tree = ET.ElementTree(file= self.filePath + 'ustawienia.xml')
+    def load_settings(self):
+        tree = ET.ElementTree(file= self.filePath + 'settings.xml')
         root = tree.getroot()
 
-        terrarium.minWilgotnosc = int(root.find('minWilgotnosc').text)
+        terrarium.minimumHumidity = int(root.find('minHumidity').text)
         log.add_log("Settings loaded")
 
 settings = settings_CL('Desktop/terra/')

@@ -22,6 +22,7 @@ from lib.display import *
 from lib.gui import *
 from lib.communication import *
 from lib.settings import *
+from lib.watchdog import *
 from terrarium import *
 #+++++++++++++++++++++ delay for safety +++++++++++++++++++++++++++
 time.sleep(10)
@@ -55,8 +56,9 @@ def thread_touch_init():
 #-----START-------------------------------------------------------------------------------------------------------------------------------------------
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def main():
-    log.add_log("Starting...")
+    lastWatchdogResetTime = datetime.datetime.now()
 
+    log.add_log("Starting...")
     settings.save_settings()
     settings.load_settings()
     #-------------THREADS INIT--------------------------------
@@ -71,6 +73,11 @@ def main():
         #---------------WYSYLANIE-----------------------------
         socket.send_message_to_server()
         time.sleep(1)
+        
+        duration = datetime.datetime.now() - lastWatchdogResetTime
+        if(duration.total_seconds() >= 60): #60 seconds to watchdog flag reset
+            watchdog.reset()
+            lastWatchdogResetTime = datetime.datetime.now()
     pass
 
 if __name__ == '__main__':

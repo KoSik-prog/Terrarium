@@ -15,7 +15,7 @@ from terrarium import *
 from lib.system import *
 from lib.log import *
 
-class sensorsCL:
+class Sensors:
     UVA = 0.0
     UVB = 0.0
     UVI = 0.0
@@ -156,4 +156,4 @@ class sensorsCL:
         humi = 100 * (self.data[3] * 256 + self.data[4]) / 65535.0
         return temp, humi
 
-sensors = sensorsCL(0x44, 0x45)
+sensors = Sensors(0x44, 0x45)

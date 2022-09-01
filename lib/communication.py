@@ -13,7 +13,7 @@ import socket, datetime
 from lib.log import *
 from terrarium import *
 
-class socket_CL:
+class Socket:
     bufferSize = 1024
     socketLastSendTime = 0
 
@@ -34,4 +34,4 @@ class socket_CL:
             self.send_message(terrarium.return_socket_message())
             log.add_log("Temp1: {:.1f} C / Wilg1: {:.0f}%RH  /  Temp2: {:.1f} C / Wilg2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.temperatureTop,terrarium.humidityTop,terrarium.temperatureBottom,terrarium.humidityBottom,terrarium.UVA,terrarium.UVB,terrarium.UVI))
         
-socket = socket_CL("192.168.0.99", 2222)
+socket = Socket("192.168.0.99", 2222)

@@ -12,7 +12,7 @@
 import RPi.GPIO as GPIO
 from lib.log import *
 
-class gpio_CL:
+class Gpio:
     heater = None #object container
     heaterFlag = False
     heaterPwm = 0
@@ -64,4 +64,4 @@ class gpio_CL:
         GPIO.output(pin, GPIO.LOW)
         self.mainLightFlag = False
 
-gpio = gpio_CL()
+gpio = Gpio()

@@ -14,7 +14,7 @@ import xml.etree.cElementTree as ET
 from lib.log import *
 from terrarium import *
 
-class settings_CL:
+class Settings:
     def __init__(self, filePath):
         self.filePath = filePath
 
@@ -34,4 +34,4 @@ class settings_CL:
         terrarium.minimumHumidity = int(root.find('minHumidity').text)
         log.add_log("Settings loaded")
 
-settings = settings_CL('Desktop/terra/')
+settings = Settings('Desktop/terra/')

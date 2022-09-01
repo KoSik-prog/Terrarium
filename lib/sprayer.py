@@ -15,7 +15,7 @@ from terrarium import *
 from lib.log import *
 from lib.inout import *
 
-class sprayerCL:
+class Sprayer:
     on1H=9
     on1M=0
     on2H=15
@@ -68,4 +68,4 @@ class sprayerCL:
     def format_time(self, hour, minute):
         return '{:02d}:{:02d}'.format(hour, minute)
 
-sprayer = sprayerCL(21)
+sprayer = Sprayer(21)

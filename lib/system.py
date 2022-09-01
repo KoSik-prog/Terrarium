@@ -11,9 +11,9 @@
 #-------------------------------------------------------------------------------
 from lib.log import *
 
-class systemCL:
+class System:
     def restart(self, message):
         log.add_error_log(message)
         #os.system('sudo shutdown -r now')
 
-system = systemCL()
+system = System()

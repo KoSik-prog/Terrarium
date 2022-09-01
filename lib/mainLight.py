@@ -16,7 +16,7 @@ from terrarium import *
 from lib.inout import *
 from lib.log import *
 
-class MAIN_LIGHT_CL:
+class MainLight:
     dimmingTime = 12 #czas stopniowego wygaszania w minutach
     manualControlFlag = False
     timeToResume = 120 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
@@ -71,4 +71,4 @@ class MAIN_LIGHT_CL:
             lampaHalogen.pwmWymagane=0"""
             time.sleep(20)
 
-mainLight = MAIN_LIGHT_CL(19, '8:00:00.0000', '19:15:00.0000')
+mainLight = MainLight(19, '8:00:00.0000', '19:15:00.0000')

@@ -19,7 +19,7 @@ from lib.log import *
 
 pygame.init()
 
-class display_CL:
+class Display:
     pygame.display.set_caption('Terrarium')
     resolution = 800, 480
     #screen = pygame.display.set_mode(resolution,FULLSCREEN)
@@ -134,4 +134,4 @@ class display_CL:
         foto.set_alpha(alpha)
         self.screen.blit(foto, (osx, osy))
 
-display = display_CL()
+display = Display()

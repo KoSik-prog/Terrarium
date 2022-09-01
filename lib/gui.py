@@ -16,7 +16,7 @@ from lib.sprayer import *
 from lib.display import *
 from terrarium import *
 
-class gui_CL:
+class Gui:
     bgcolor=(0,0,0,255)
     activeTab = 0
 
@@ -242,4 +242,4 @@ class gui_CL:
                         gui.activeTab=1
                 #---------------------
 
-gui = gui_CL()
+gui = Gui()

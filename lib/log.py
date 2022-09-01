@@ -11,7 +11,7 @@
 #-------------------------------------------------------------------------------
 import sys, os, datetime, time
 
-class LOG_CL:
+class Log:
     busyFlag = False
 
     def __init__(self, filePath):
@@ -71,4 +71,4 @@ class LOG_CL:
         actFile.close()
         self.busyFlag = False
 
-log = LOG_CL('Desktop/terra')
+log = Log('Desktop/terra')

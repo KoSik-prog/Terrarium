@@ -1,6 +1,6 @@
 import sys, smbus, board, busio, adafruit_veml6075, time
 
-class busCL:
+class Bus:
     def __init__(self):
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.veml = None
@@ -13,10 +13,10 @@ class busCL:
     def read(self):
         self.bus_init()
         print(self.veml.uva)
-bus = busCL()
+bus = Bus()
 
 
-class tempCL():
+class Temp():
     def __init__(self):
         self.i2cbus = None
 
@@ -39,10 +39,9 @@ class tempCL():
             zapis_dziennika_zdarzen('err')
         bleble = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45
         print(bleble)
-temp = tempCL()
+temp = Temp()
 
 def main():
-
     temp.start()
     temp.readtest()
     temp.stop()

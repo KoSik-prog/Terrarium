@@ -15,7 +15,7 @@ from terrarium import *
 from lib.log import *
 from lib.inout import *
 
-class heater_CL:
+class Heater:
     pwmRequired = 0
     manualControlFlag = False
     heatControlFlag = False
@@ -100,4 +100,4 @@ class heater_CL:
                 self.pwmRequired = max(min( int(self.pid.output), 100 ),0)
                 #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.temperatureTop, self.pwmRequired, self.heatControlFlag))
 
-heater = heater_CL(13, 50, '11:00:00.0000', '17:30:00.0000')
+heater = Heater(13, 50, '11:00:00.0000', '17:30:00.0000')

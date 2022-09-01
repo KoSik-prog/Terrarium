@@ -12,8 +12,8 @@
 import sys, smbus, board, busio, adafruit_veml6075, time, datetime
 
 from terrarium import *
-from libraries.system import *
-from libraries.log import *
+from lib.system import *
+from lib.log import *
 
 class sensorsCL:
     UVA = 0.0

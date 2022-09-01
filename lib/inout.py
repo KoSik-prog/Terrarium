@@ -10,12 +10,13 @@
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
 import RPi.GPIO as GPIO
-from libraries.log import *
+from lib.log import *
 
 class gpio_CL:
     heater = None #object container
     heaterFlag = False
     heaterPwm = 0
+    mainLightFlag = False
     
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
@@ -43,6 +44,9 @@ class gpio_CL:
     def read_heater_pwm(self):
         return self.heaterPwm
 
+    def check_main_light_flag(self):
+        return self.mainLightFlag
+
     def set_as_output(self, pin):
         GPIO.setup(pin, GPIO.OUT)
 
@@ -54,8 +58,10 @@ class gpio_CL:
 
     def lamp_on(self, pin):
         GPIO.output(pin, GPIO.HIGH)
+        self.mainLightFlag = True
 
     def lamp_off(self, pin):
         GPIO.output(pin, GPIO.LOW)
+        self.mainLightFlag = False
 
 gpio = gpio_CL()

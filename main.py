@@ -13,15 +13,15 @@ import glob, time, sys, datetime, threading, os, timeit
 
 from timeit import default_timer as timer
 
-from libraries.log import *
-from libraries.mainLight import *
-from libraries.sensors import *
-from libraries.heater import *
-from libraries.sprayer import *
-from libraries.display import *
-from libraries.gui import *
-from libraries.communication import *
-from libraries.settings import *
+from lib.log import *
+from lib.mainLight import *
+from lib.sensors import *
+from lib.heater import *
+from lib.sprayer import *
+from lib.display import *
+from lib.gui import *
+from lib.communication import *
+from lib.settings import *
 from terrarium import *
 #+++++++++++++++++++++ delay for safety +++++++++++++++++++++++++++
 time.sleep(10)

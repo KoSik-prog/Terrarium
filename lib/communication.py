@@ -10,7 +10,7 @@
 #-------------------------------------------------------------------------------
 import socket, datetime
 
-from libraries.log import *
+from lib.log import *
 from terrarium import *
 
 class socket_CL:

@@ -13,11 +13,10 @@ import datetime
 from timeit import default_timer as timer
 
 from terrarium import *
-from libraries.inout import *
-from libraries.log import *
+from lib.inout import *
+from lib.log import *
 
 class MAIN_LIGHT_CL:
-    flag = False
     dimmingTime = 12 #czas stopniowego wygaszania w minutach
     manualControlFlag = False
     timeToResume = 120 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
@@ -54,12 +53,11 @@ class MAIN_LIGHT_CL:
         #------check------------------------
         end = timer()
         startupTime = datetime.timedelta(seconds=round(end - terrarium.startTime))
-        if(self.flag==0 and (int(onTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<(-60)) and self.manualControlFlag==False and startupTime.total_seconds() >= self.timeToResume):
+        if(gpio.check_main_light_flag() == 0 and (int(onTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<(-60)) and self.manualControlFlag==False and startupTime.total_seconds() >= self.timeToResume):
             log.add_log("AUTO main light -> ON")
             gpio.lamp_on(self.pin)
-            self.flag=1
             time.sleep(20)
-        if(self.flag==1 and (int(offTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<60) and self.manualControlFlag==False):
+        if(gpio.check_main_light_flag() == 1 and (int(offTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<60) and self.manualControlFlag==False):
             log.add_log("AUTO main light -> OFF")
             """lampaHalogen.czasPWMustawienie=0
             lampaHalogen.pwmWymagane=100
@@ -71,7 +69,6 @@ class MAIN_LIGHT_CL:
             gpio.lamp_off(self.pin)
             """lampaHalogen.czasPWMustawienie=(self.czasWygaszania*60)/100
             lampaHalogen.pwmWymagane=0"""
-            self.flag=0
             time.sleep(20)
 
 mainLight = MAIN_LIGHT_CL(19, '8:00:00.0000', '19:15:00.0000')

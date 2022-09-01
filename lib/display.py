@@ -15,7 +15,7 @@ from pygame.compat import unichr_, unicode_
 from pygame.locals import *
 from pygame.compat import geterror
 
-from libraries.log import *
+from lib.log import *
 
 pygame.init()
 
@@ -108,7 +108,7 @@ class display_CL:
 
     def load_image(self, name):   # ZALADOWANIE IKONY
         main_dir = os.path.split(os.path.abspath(__file__))[0]
-        data_dir = os.path.join(main_dir, '../pic')
+        data_dir = os.path.join(main_dir, '../assets/img')
         fullname = os.path.join(data_dir, name)
         try:
             image = pygame.image.load(fullname)

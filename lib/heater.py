@@ -12,8 +12,8 @@ import datetime, PID, threading
 from timeit import default_timer as timer
 
 from terrarium import *
-from libraries.log import *
-from libraries.inout import *
+from lib.log import *
+from lib.inout import *
 
 class heater_CL:
     pwmRequired = 0

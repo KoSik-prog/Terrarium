@@ -12,8 +12,8 @@ from timeit import default_timer as timer
 import time
 
 from terrarium import *
-from libraries.log import *
-from libraries.inout import *
+from lib.log import *
+from lib.inout import *
 
 class sprayerCL:
     on1H=9
@@ -21,6 +21,7 @@ class sprayerCL:
     on2H=15
     on2M=0
     sprayingTime=12
+    sprayingTimeManual = 12
     flag = False
     lastSpraying = 0
 

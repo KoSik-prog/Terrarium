@@ -11,7 +11,7 @@
 #-------------------------------------------------------------------------------
 import xml.etree.cElementTree as ET
 
-from libraries.log import *
+from lib.log import *
 from terrarium import *
 
 class settings_CL:

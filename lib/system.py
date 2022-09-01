@@ -9,7 +9,7 @@
 # Created:     28.08.2022
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
-from libraries.log import *
+from lib.log import *
 
 class systemCL:
     def restart(self, message):

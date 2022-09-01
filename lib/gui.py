@@ -8,12 +8,12 @@
 # Created:     28.08.2022
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
-from libraries.log import *
-from libraries.mainLight import *
-from libraries.sensors import *
-from libraries.heater import *
-from libraries.sprayer import *
-from libraries.display import *
+from lib.log import *
+from lib.mainLight import *
+from lib.sensors import *
+from lib.heater import *
+from lib.sprayer import *
+from lib.display import *
 from terrarium import *
 
 class gui_CL:
@@ -43,7 +43,7 @@ class gui_CL:
         iconsPosition=5
         display.icons(0,0,255,"background")
 
-        if(mainLight.flag == 1):
+        if(gpio.mainLightFlag == True):
             display.icons(10, iconsPosition,255,"bulb1")
             iconsPosition += 125
 
@@ -94,10 +94,10 @@ class gui_CL:
         end = timer()
         display.icons(0, 0, 255, "background")
 
-        if(mainLight.flag == True):
+        if(gpio.mainLightFlag == True):
             display.icons(10,10,255,"bulb1")
 
-        if(heater.flag == True):
+        if(gpio.heaterFlag == True):
             display.icons(70,10,255,"bulb2")
 
         display.label(display.screen, "Timer 1: ","Nimbus Sans L",60,30,40,(253,180,165),255)
@@ -144,11 +144,11 @@ class gui_CL:
         display.button(display.screen, (240,430,80,50) ,(80,80,80), (50,50,50), 10, 2)
         display.label(display.screen, "+","Nimbus Sans L",80,265,420,(220,220,220),255)
         display.button(display.screen, (325,380,200,100) ,(55,112,21), (55,112,21), 10, 2)
-        display.label(display.screen, "{} s".format(sprayer.czasSpryskManual),"Nimbus Sans L",80,350,400,(220,220,220),255)
+        display.label(display.screen, "{} s".format(sprayer.sprayingTimeManual),"Nimbus Sans L",80,350,400,(220,220,220),255)
         display.button(display.screen, (530,380,80,100) ,(20,192,21), (30,220,21), 10, 2)
 
         display.label(display.screen, "ostatnie:","Nimbus Sans L",40,670,20,(253,201,77),255)
-        display.label(display.screen, "{}".format(str(datetime.timedelta(seconds=round(end - sprayer.ostatnieSpryskanie)))),"Nimbus Sans L",40,670,60,(253,201,77),255)
+        display.label(display.screen, "{}".format(str(datetime.timedelta(seconds=round(end - sprayer.lastSpraying)))),"Nimbus Sans L",40,670,60,(253,201,77),255)
 
         display.button(display.screen, (690,390,100,80) ,(120,120,120), (15,15,15), 10, 2)
         display.label(display.screen, "<","Nimbus Sans L",120,716,375,(0,0,0),255)
@@ -234,10 +234,10 @@ class gui_CL:
                         sprayer.spray_terrarium(sprayer.sprayingTime)
                         pygame.event.clear
                     if(px>240 and px<320 and py>380 and py<430): #sprysk manualne -
-                        if(sprayer.czasSpryskManual>5):
-                            sprayer.czasSpryskManual-=2
+                        if(sprayer.sprayingTimeManual>5):
+                            sprayer.sprayingTimeManual-=2
                     if(px>240 and px<320 and py>430 and py<480):  #sprysk manualne +
-                        sprayer.czasSpryskManual+=2
+                        sprayer.sprayingTimeManual+=2
                     if(px>690 and px<800 and py>390 and py<480):
                         gui.activeTab=1
                 #---------------------

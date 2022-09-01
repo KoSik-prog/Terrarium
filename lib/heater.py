@@ -19,9 +19,9 @@ class Heater:
     pwmRequired = 0
     manualControlFlag = False
     heatControlFlag = False
-    pmwChangeTime = 1#s czas w sekundach pomiedzy kazdym %PWM
-    dimmingTime = 3 #s czas w sekundach pomiedzy kazdym %PWM dla ściemniania
-    timeLastUpdatePwm = 0 #zmienna do zapisania czasu ostatniej regulacji
+    pmwChangeTime = 1#s time in seconds between each %PWM
+    dimmingTime = 3 #s time in seconds between each %PWM for dimming
+    timeLastUpdatePwm = 0 #variable to save the time of the last adjustment
     pid = PID.PID(3, 4, 5)
 
     def __init__(self, pin, frequency, autoOn, autoOff):
@@ -33,13 +33,13 @@ class Heater:
         self.pid.SetPoint = terrarium.read_requred_island_temperature()
         self.pid.setSampleTime(60)
 
-    def heater_thread(self): #---- THREAD
+    def heater_thread(self):
         while terrarium.runFlag == True:
             self.check_timer()
             terrarium.heaterLastUpdateTime = datetime.datetime.now()
             time.sleep(10)
 
-    def pwm_control_thread(self): #---- THREAD
+    def pwm_control_thread(self): 
         i = 0
         while terrarium.runFlag == True:
             if self.heatControlFlag == True:
@@ -69,11 +69,11 @@ class Heater:
         format = '%H:%M:%S.%f'
         actualTime=datetime.datetime.now().time()
         try:
-            stampOn = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoON, format) # obliczenie roznicy czasu
+            stampOn = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoON, format)
         except ValueError as e:
             log.add_error_log('error:', e)
         try:
-            stampOff = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoOFF, format) # obliczenie roznicy czasu
+            stampOff = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoOFF, format)
         except ValueError as e:
             log.add_error_log('error:', e)
         #----- clear flags ----------
@@ -94,7 +94,7 @@ class Heater:
             self.pwmRequired=0
 
     def heating_control(self):
-        if(terrarium.UVI > terrarium.minUviForHeating and self.heatControlFlag == True): #jesli kameleon nie zasłania swiatla
+        if(terrarium.UVI > terrarium.minUviForHeating and self.heatControlFlag == True): #if the light is not obstructed by the chameleon
             self.pid.update(terrarium.temperatureTop)
             if(self.heatControlFlag == True):
                 self.pwmRequired = max(min( int(self.pid.output), 100 ),0)

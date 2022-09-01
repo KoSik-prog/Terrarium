@@ -31,7 +31,7 @@ class Sprayer:
         self.lastSpraying = timer()
 
     def sprayer_thread(self):
-        hour1='09'  #w tych godzinach aktywne dodatkowe spryskiwanie
+        hour1='09'  #additional spraying is active during these hours
         minutes1='18'
         gpio.sprayer_off(self.pin)
 

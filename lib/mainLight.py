@@ -17,9 +17,8 @@ from lib.inout import *
 from lib.log import *
 
 class MainLight:
-    dimmingTime = 12 #czas stopniowego wygaszania w minutach
     manualControlFlag = False
-    timeToResume = 120 #seconds - czas do wlaczenia lampy po ponownym uruchomieniu
+    timeToResume = 120 #seconds - time until the lamp is turned on after restarting
 
     def __init__(self, pin, AutoON, AutoOFF):
         gpio.set_as_output(pin)
@@ -45,12 +44,12 @@ class MainLight:
             offTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoOFF, format)
         except ValueError as e:
             log.add_log('error: ', e)
-        # clear flags 
+        #------ clear flags ------------------------
         if(int(onTimeDifference.total_seconds())>(-15) and int(onTimeDifference.total_seconds())<0 and  self.manualControlFlag==True):
             self.manualControlFlag=False
         if(int(offTimeDifference.total_seconds())>(-15) and int(offTimeDifference.total_seconds())<0 and self.manualControlFlag==True):
             self.manualControlFlag=False
-        #------check------------------------
+        #------ check ------------------------
         end = timer()
         startupTime = datetime.timedelta(seconds=round(end - terrarium.startTime))
         if(gpio.check_main_light_flag() == 0 and (int(onTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<(-60)) and self.manualControlFlag==False and startupTime.total_seconds() >= self.timeToResume):

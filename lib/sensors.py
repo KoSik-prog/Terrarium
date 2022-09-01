@@ -120,7 +120,7 @@ class Sensors:
         for i in range(len(array) - 1):
             if array[i] == array[i + 1]:
                 diff += 1
-        if diff == (len(array) - 1): #jesli wynik jest rowny ilosci porownan zwraca False jako blad
+        if diff == (len(array) - 1): #if the result is equal to the number of comparisons it returns False as an error
             return False
         else:
             return True

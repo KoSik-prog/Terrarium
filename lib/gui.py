@@ -23,7 +23,7 @@ class Gui:
     def __init__(self):
         display.screen.fill(self.bgcolor)
 
-    def gui_thread(self):  #---- THREAD
+    def gui_thread(self):
         tfps=0.5
 
         while(terrarium.runFlag == True):

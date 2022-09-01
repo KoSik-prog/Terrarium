@@ -11,7 +11,7 @@
 import datetime
 from timeit import default_timer as timer
 
-class terrariumCl:   #TERRARIUM
+class Terrarium:
     temperatureTop = 0.0
     humidityTop = 0.0
     temperatureBottom = 0.0
@@ -21,10 +21,9 @@ class terrariumCl:   #TERRARIUM
     UVI = 0.0
     socked_message_interval = 5
     minimumHumidity = 50
-    temperature_required_island = 29.0 #temp wymagana na wyspie
-    minUviForHeating = 0.15 #index UVI przy ktorym zalacza sie ogrzewanie / nie zalacza gdy kameleon zaslania czujnik
-    #czasOczekiwaniaNaCzujniki = 90   #w minutach oczekiwanie na zmianę wartosci czujnikow (dla wykrywania bledow)
-    runFlag = True #flaga utrzymujaca watki
+    temperature_required_island = 29.0
+    minUviForHeating = 0.15 #UV index at which the heating turns on / does not turn on when the chameleon covers the sensor
+    runFlag = True #flag keeping the main threads
     startTime = 0
 
     sensorsLastUpdateTime = 0
@@ -46,4 +45,4 @@ class terrariumCl:   #TERRARIUM
     def return_socket_message(self):
         return "terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(self.temperatureTop, self.humidityTop, self.temperatureBottom, self.humidityBottom, self.UVI)
         
-terrarium = terrariumCl()
+terrarium = Terrarium()

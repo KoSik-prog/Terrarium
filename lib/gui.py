@@ -38,7 +38,9 @@ class Gui:
                 self.menu_main()
             elif(self.activeTab == 2):
                 self.menu_sprayer()
-            time.sleep(tfps)   
+            time.sleep(tfps)  
+            if((datetime.datetime.now() - self.menuTimeStamp) > (datetime.timedelta(seconds=self.menuTime))): #when idle then return to the home screen
+                self.activeTab = 0 
 
     def touch_thread(self):
         while(terrarium.runFlag == True):
@@ -84,7 +86,7 @@ class Gui:
         self.touchPointList.append(display.button_with_text("sprayer", display.screen, (30, 60, 300, 120), (223, 169, 191), (223, 169, 151), 10, 2, "deszcz", 80, (253, 50, 35)))
         self.touchPointList.append(display.button_with_text("dripper", display.screen, (30, 220, 300, 120), (216, 155, 43), (216, 155, 0), 10, 2, "dripper", 80, (253, 50, 35)))
         self.touchPointList.append(display.button_with_text("light", display.screen, (360, 60, 300, 120), (187, 179, 41), (187, 179, 0), 10, 2, "oswietlenie", 75, (253, 50, 35)))
-        self.touchPointList.append(display.button_with_text("wentilation", display.screen, (360, 220, 300, 120), (213, 0, 88), (213, 0, 38), 10, 2, "wentylacja", 75, (253, 50, 35)))
+        self.touchPointList.append(display.button_with_text("ventilation", display.screen, (360, 220, 300, 120), (213, 0, 88), (213, 0, 38), 10, 2, "wentylacja", 75, (253, 50, 35)))
         display.label(display.screen, "czas pracy:{}".format(str(datetime.timedelta(seconds = round(end - terrarium.startTime)))), "Nimbus Sans L", 30, 50, 440, (150, 150, 150), 100)
         self.touchPointList.append(display.button_with_text("back", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
         pygame.display.update()
@@ -93,20 +95,14 @@ class Gui:
         end = timer()
         display.icons(0, 0, 255, "background")
 
-        if(gpio.mainLightFlag == True):
-            display.icons(10, 10, 255, "bulb1")
-
-        if(gpio.heaterFlag == True):
-            display.icons(70, 10, 255, "bulb2")
-
         display.label(display.screen, "Timer 1: ", "Nimbus Sans L", 60, 30, 40, (253,180,165), 255)
         self.touchPointList.append(display.button_with_text("Timer1_H-", display.screen, (200,10,80,50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("Timer1_H+", display.screen, (200,60,80,50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         display.button(display.screen, (285,10,100,100),(55,112,21), (55,112,21), 10, 2)
-        display.label(display.screen, "{:02d}".format(sprayer.on1H), "Nimbus Sans L", 120, 290, 17, (220, 220, 220), 255)
+        display.label(display.screen, "{:02d}".format(sprayer.spraying1.hour), "Nimbus Sans L", 120, 290, 17, (220, 220, 220), 255)
         display.label(display.screen, ":", "Nimbus Sans L", 120, 382, 15, (220, 220, 220), 255)
         display.button(display.screen, (400, 10, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2)
-        display.label(display.screen, "{:02d}".format(sprayer.on1M), "Nimbus Sans L", 120, 405, 17, (220, 220, 220), 255)
+        display.label(display.screen, "{:02d}".format(sprayer.spraying1.minute), "Nimbus Sans L", 120, 405, 17, (220, 220, 220), 255)
         self.touchPointList.append(display.button_with_text("Timer1_M-", display.screen, (505, 10, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("Timer1_M+", display.screen, (505, 60, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
 
@@ -114,10 +110,10 @@ class Gui:
         self.touchPointList.append(display.button_with_text("Timer2_H-", display.screen, (200, 140, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("Timer2_H+", display.screen, (200, 190, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         display.button(display.screen, (285, 140, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2)
-        display.label(display.screen, "{:02d}".format(sprayer.on2H), "Nimbus Sans L", 120, 290, 147, (220, 220, 220), 255)
+        display.label(display.screen, "{:02d}".format(sprayer.spraying2.hour), "Nimbus Sans L", 120, 290, 147, (220, 220, 220), 255)
         display.label(display.screen, ":", "Nimbus Sans L", 120, 382, 145, (220, 220, 220), 255)
         display.button(display.screen, (400, 140, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2)
-        display.label(display.screen, "{:02d}".format(sprayer.on2M), "Nimbus Sans L", 120, 405, 147, (220, 220, 220), 255)
+        display.label(display.screen, "{:02d}".format(sprayer.spraying2.minute), "Nimbus Sans L", 120, 405, 147, (220, 220, 220), 255)
         self.touchPointList.append(display.button_with_text("Timer2_M-", display.screen, (505, 140, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("Timer2_M+", display.screen, (505, 190, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
 
@@ -130,7 +126,6 @@ class Gui:
         display.label(display.screen, "Manualne: ", "Nimbus Sans L", 60, 30, 410, (253, 180, 165), 255)
         self.touchPointList.append(display.button_with_text("SprayTimeManual_-", display.screen, (240, 380, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("SprayTimeManual_+", display.screen, (240, 430, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
-
         display.button(display.screen, (325, 380, 200, 100), (55, 112, 21), (55, 112, 21), 10, 2)
         display.label(display.screen, "{} s".format(sprayer.sprayingTimeManual), "Nimbus Sans L", 80, 350, 400, (220, 220, 220), 255)
         display.button(display.screen, (530, 380, 80, 100), (20, 192, 21), (30, 220, 21), 10, 2)

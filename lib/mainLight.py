@@ -34,7 +34,7 @@ class MainLight:
 
     def check_timer(self):
         format = '%H:%M:%S.%f'
-        actualTime=datetime.datetime.now().time()
+        actualTime = datetime.datetime.now().time()
 
         try:
             onTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.autoOn, format)
@@ -58,16 +58,16 @@ class MainLight:
             time.sleep(20)
         if(gpio.check_main_light_flag() == 1 and (int(offTimeDifference.total_seconds())>0) and (int(offTimeDifference.total_seconds())<60) and self.manualControlFlag==False):
             log.add_log("AUTO main light -> OFF")
-            """lampaHalogen.czasPWMustawienie=0
-            lampaHalogen.pwmWymagane=100
+            """lampaHalogen.czasPWMustawienie =0
+            lampaHalogen.pwmWymagane =100
             for i in range(30):
                 if(lampaHalogen.pwm==100):
                     break;
                 time.sleep(1)
-            lampaHalogen.czasPWMustawienie=1"""
+            lampaHalogen.czasPWMustawienie =1"""
             gpio.lamp_off(self.pin)
-            """lampaHalogen.czasPWMustawienie=(self.czasWygaszania*60)/100
-            lampaHalogen.pwmWymagane=0"""
+            """lampaHalogen.czasPWMustawienie =(self.czasWygaszania*60)/100
+            lampaHalogen.pwmWymagane =0"""
             time.sleep(20)
 
 mainLight = MainLight(19, '8:00:00.0000', '19:15:00.0000')

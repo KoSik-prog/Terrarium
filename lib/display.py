@@ -62,11 +62,12 @@ class Display:
         rectTmp.center = rect.center
         pygame.draw.rect(surface, colour, rectTmp)
 
-    def button_with_text(self, surface, rect, colourButton, borderColor, cornerRadius, borderThickness, text, size, colourText):    
+    def button_with_text(self, name,  surface, rect, colourButton, borderColor, cornerRadius, borderThickness, text, size, colourText):    
         self.button(surface, rect, colourButton, borderColor, cornerRadius, borderThickness)
         xPos = rect[0] + (rect[2] / 2)
         yPos = rect[1] + (rect[3] / 2)
         self.label_center(surface, text, "Nimbus Sans L", size, xPos, yPos, colourText, 255)
+        return (rect, name)
 
     def button(self, surface, rect, colour, borderColor, cornerRadius, borderThickness):
         if cornerRadius < 0:

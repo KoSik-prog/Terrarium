@@ -22,7 +22,6 @@ class Sprayer:
     on2M=0
     sprayingTime=12
     sprayingTimeManual = 12
-    flag = False
     lastSpraying = 0
 
     def __init__(self, pin):
@@ -54,11 +53,9 @@ class Sprayer:
 
     def spray_terrarium(self, sprayTime):
         log.add_log('Spraying!')
-        self.flag = True
         gpio.sprayer_on(self.pin)
         time.sleep(int(sprayTime))
         gpio.sprayer_off(self.pin)
-        self.flag = False
         self.lastSpraying = timer()
 
     def time_now(self):

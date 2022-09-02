@@ -67,7 +67,7 @@ class Heater:
 
     def check_timer(self):
         format = '%H:%M:%S.%f'
-        actualTime=datetime.datetime.now().time()
+        actualTime = datetime.datetime.now().time()
         try:
             stampOn = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.autoOn, format)
         except ValueError as e:

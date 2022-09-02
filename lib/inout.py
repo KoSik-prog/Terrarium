@@ -17,6 +17,7 @@ class Gpio:
     heaterFlag = False
     heaterPwm = 0
     mainLightFlag = False
+    sprayerFlag = False
     
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
@@ -47,13 +48,18 @@ class Gpio:
     def check_main_light_flag(self):
         return self.mainLightFlag
 
+    def check_sprayer_flag(self):
+        return self.sprayerFlag
+
     def set_as_output(self, pin):
         GPIO.setup(pin, GPIO.OUT)
 
     def sprayer_on(self, pin):
+        self.sprayerFlag = True
         GPIO.output(pin, GPIO.HIGH)
 
     def sprayer_off(self, pin):
+        self.sprayerFlag = False
         GPIO.output(pin, GPIO.LOW)
 
     def lamp_on(self, pin):

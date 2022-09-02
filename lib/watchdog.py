@@ -31,7 +31,6 @@ class Watchdog:
             if(self.watchdogFlag == 0):
                 log.add_watchdog_log('RESET!')
                 #os.system('sudo shutdown -r now')
-        pass
 
     def read(self):
         tree = ET.ElementTree(file = self.path)

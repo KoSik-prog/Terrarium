@@ -62,8 +62,8 @@ class Gui:
         dl=display.label(display.screen, "{:.1f}°C".format(terrarium.temperatureBottom),"Nimbus Sans L",150,290,370,(110,254,192),255) #(206,241,198)
         display.label(display.screen, "{:.0f}%".format(terrarium.humidityBottom),"Nimbus Sans L",80,320+dl,410,(183,176,241),255)
 
-        display.label(display.screen, "UVI:{:.4f}".format(terrarium.UVI),"Nimbus Sans L",70,430,180,(253,201,77),255)
-        display.label(display.screen, "UVA: {:.2f} UVB: {:.2f}".format(terrarium.UVA,terrarium.UVB),"Nimbus Sans L",48,370,240,(254,138,35),255)
+        display.label(display.screen, "UVI:{:.4f}".format(terrarium.uvi),"Nimbus Sans L",70,430,180,(253,201,77),255)
+        display.label(display.screen, "UVA: {:.2f} UVB: {:.2f}".format(terrarium.uva,terrarium.uvb),"Nimbus Sans L",48,370,240,(254,138,35),255)
 
         display.label(display.screen, "{}".format(datetime.datetime.now().strftime('%H:%M:%S')),"Nimbus Sans L",60,30,420,(200,240,200),255)
         pygame.display.update()

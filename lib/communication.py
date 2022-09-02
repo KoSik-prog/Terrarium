@@ -21,17 +21,17 @@ class Socket:
         self.address = address
         self.serverAddressPort = (address, port)
         self.socketLastSendTime = datetime.datetime.now()
-        self.UDPClientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
+        self.udpClientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
 
     def send_message(self, messageToSend):
         bytesToSend = str.encode(messageToSend)
-        self.UDPClientSocket.sendto(bytesToSend, self.serverAddressPort)
-        log.add_log("send to {} -> message: {}".format(messageToSend, self.address))
+        self.udpClientSocket.sendto(bytesToSend, self.serverAddressPort)
+        log.add_log("socket| send to:  {} -> message: {}".format(self.address, messageToSend))
         self.socketLastSendTime = datetime.datetime.now()
 
     def send_message_to_server(self):
-        if((datetime.datetime.now() - self.socketLastSendTime) > (datetime.timedelta(minutes = terrarium.read_socket_message_interval()))):
+        if((datetime.datetime.now() - self.socketLastSendTime) > (datetime.timedelta(minutes=terrarium.read_socket_message_interval()))):
             self.send_message(terrarium.return_socket_message())
-            log.add_log("Temp1: {:.1f} C / Wilg1: {:.0f}%RH  /  Temp2: {:.1f} C / Wilg2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.temperatureTop,terrarium.humidityTop,terrarium.temperatureBottom,terrarium.humidityBottom,terrarium.UVA,terrarium.UVB,terrarium.UVI))
+            log.add_log("Temp1: {:.1f} C / Humi1: {:.0f}%RH  /  Temp2: {:.1f} C / Humi2: {:.0f}%RH  /  UVA: {:.2f}, UVB: {:.2f}, UVI:{:.4f}".format(terrarium.temperatureTop, terrarium.humidityTop, terrarium.temperatureBottom, terrarium.humidityBottom, terrarium.uva, terrarium.uvb, terrarium.uvi))
         
 socket = Socket("192.168.0.99", 2222)

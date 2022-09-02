@@ -40,11 +40,11 @@ class Sensors:
             time.sleep(1)
 
     def send_data_to_terrarium(self):
-        terrarium.UVA = self.UVA
-        self.add_to_array(self.dataArrayUVA, self.UVA)
-        terrarium.UVB = self.UVB
-        self.add_to_array(self.dataArrayUVB, self.UVB)
-        terrarium.UVI = self.UVI
+        terrarium.uva = self.uva
+        self.add_to_array(self.dataArrayUVA, self.uva)
+        terrarium.uvb = self.uvb
+        self.add_to_array(self.dataArrayUVB, self.uvb)
+        terrarium.uvi = self.uvi
         if self.are_sensors_ok == False:
             system.restart('RESET! -> sensors error')
 
@@ -53,18 +53,18 @@ class Sensors:
         veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time = 100)
         time.sleep(0.1)
         try:
-            self.UVA = veml6075.uva
-            if self.UVA < 0:
-                self.UVA = 0
-            self.UVB = veml6075.uva
-            self.UVI = veml6075.uv_index
+            self.uva = veml6075.uva
+            if self.uva < 0:
+                self.uva = 0
+            self.uvb = veml6075.uva
+            self.uvi = veml6075.uv_index
         except NameError:
             log.add_log('i2c bus error!')
             log.add_error_log('i2c bus error!')
             veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time = 100)
             time.sleep(0.1)
-            self.UVB = veml6075.uvb
-            self.UVI = veml6075.uv_index
+            self.uvb = veml6075.uvb
+            self.uvi = veml6075.uv_index
         del veml6075
         del i2c
 

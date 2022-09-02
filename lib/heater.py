@@ -27,8 +27,8 @@ class Heater:
     def __init__(self, pin, frequency, autoOn, autoOff):
         gpio.set_as_dac(pin, frequency)
         self.timeLastUpdatePwm = datetime.datetime.now()
-        self.AutoON = autoOn
-        self.AutoOFF = autoOff
+        self.autoOn = autoOn
+        self.autoOff = autoOff
         #--- PID settings -----
         self.pid.SetPoint = terrarium.read_requred_island_temperature()
         self.pid.setSampleTime(60)
@@ -69,11 +69,11 @@ class Heater:
         format = '%H:%M:%S.%f'
         actualTime=datetime.datetime.now().time()
         try:
-            stampOn = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoON, format)
+            stampOn = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.autoOn, format)
         except ValueError as e:
             log.add_error_log('error:', e)
         try:
-            stampOff = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoOFF, format)
+            stampOff = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.autoOff, format)
         except ValueError as e:
             log.add_error_log('error:', e)
         #----- clear flags ----------
@@ -94,10 +94,10 @@ class Heater:
             self.pwmRequired=0
 
     def heating_control(self):
-        if(terrarium.UVI > terrarium.minUviForHeating and self.heatControlFlag == True): #if the light is not obstructed by the chameleon
+        if(terrarium.uvi > terrarium.minUviForHeating and self.heatControlFlag == True): #if the light is not obstructed by the chameleon
             self.pid.update(terrarium.temperatureTop)
             if(self.heatControlFlag == True):
                 self.pwmRequired = max(min( int(self.pid.output), 100 ),0)
-                #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.UVI, terrarium.temperatureTop, self.pwmRequired, self.heatControlFlag))
+                #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.uvi, terrarium.temperatureTop, self.pwmRequired, self.heatControlFlag))
 
 heater = Heater(13, 50, '11:00:00.0000', '17:30:00.0000')

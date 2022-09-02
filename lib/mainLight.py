@@ -20,11 +20,11 @@ class MainLight:
     manualControlFlag = False
     timeToResume = 120 #seconds - time until the lamp is turned on after restarting
 
-    def __init__(self, pin, AutoON, AutoOFF):
+    def __init__(self, pin, autoOn, autoOff):
         gpio.set_as_output(pin)
         self.pin = pin
-        self.AutoON = AutoON
-        self.AutoOFF = AutoOFF
+        self.autoOn = autoOn
+        self.autoOff = autoOff
 
     def main_light_thread(self):
         while terrarium.runFlag == True:
@@ -37,11 +37,11 @@ class MainLight:
         actualTime=datetime.datetime.now().time()
 
         try:
-            onTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoON, format)
+            onTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.autoOn, format)
         except ValueError as e:
             log.add_log('error: ', e)
         try:
-            offTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.AutoOFF, format)
+            offTimeDifference = datetime.datetime.strptime(str(actualTime), format) - datetime.datetime.strptime(self.autoOff, format)
         except ValueError as e:
             log.add_log('error: ', e)
         #------ clear flags ------------------------

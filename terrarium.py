@@ -16,9 +16,9 @@ class Terrarium:
     humidityTop = 0.0
     temperatureBottom = 0.0
     humidityBottom = 0.0
-    UVA = 0.0
-    UVB = 0.0
-    UVI = 0.0
+    uva = 0.0
+    uvb = 0.0
+    uvi = 0.0
     socked_message_interval = 5
     minimumHumidity = 50
     temperature_required_island = 29.0
@@ -43,6 +43,6 @@ class Terrarium:
         return self.socked_message_interval
 
     def return_socket_message(self):
-        return "terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(self.temperatureTop, self.humidityTop, self.temperatureBottom, self.humidityBottom, self.UVI)
+        return "terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(self.temperatureTop, self.humidityTop, self.temperatureBottom, self.humidityBottom, self.uvi)
         
 terrarium = Terrarium()

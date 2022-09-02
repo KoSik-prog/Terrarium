@@ -14,6 +14,7 @@ from lib.sensors import *
 from lib.heater import *
 from lib.sprayer import *
 from lib.display import *
+from lib.settings import *
 from terrarium import *
 
 class Gui:
@@ -22,6 +23,7 @@ class Gui:
     touchPointList = []
     menuTimeStamp = None #menu display time stamp
     menuTime = 30 #how long menu is displayed
+    settingsSavedFlag = False
 
     def __init__(self):
         display.screen.fill(self.bgcolor)
@@ -38,9 +40,14 @@ class Gui:
                 self.menu_main()
             elif(self.activeTab == 2):
                 self.menu_sprayer()
+            elif(self.activeTab == 3):
+                self.menu_terrarium()
             time.sleep(tfps)  
             if((datetime.datetime.now() - self.menuTimeStamp) > (datetime.timedelta(seconds=self.menuTime))): #when idle then return to the home screen
                 self.activeTab = 0 
+                if self.settingsSavedFlag == False:
+                    settings.save_settings()
+                    self.settingsSavedFlag = True
 
     def touch_thread(self):
         while(terrarium.runFlag == True):
@@ -85,7 +92,7 @@ class Gui:
         display.icons(0, 0, 255, "background")
         self.touchPointList.append(display.button_with_text("sprayer", display.screen, (30, 60, 300, 120), (223, 169, 191), (223, 169, 151), 10, 2, "deszcz", 80, (253, 50, 35)))
         self.touchPointList.append(display.button_with_text("dripper", display.screen, (30, 220, 300, 120), (216, 155, 43), (216, 155, 0), 10, 2, "dripper", 80, (253, 50, 35)))
-        self.touchPointList.append(display.button_with_text("light", display.screen, (360, 60, 300, 120), (187, 179, 41), (187, 179, 0), 10, 2, "oswietlenie", 75, (253, 50, 35)))
+        self.touchPointList.append(display.button_with_text("terrarium", display.screen, (360, 60, 300, 120), (187, 179, 41), (187, 179, 0), 10, 2, "terrarium", 75, (253, 50, 35)))
         self.touchPointList.append(display.button_with_text("ventilation", display.screen, (360, 220, 300, 120), (213, 0, 88), (213, 0, 38), 10, 2, "wentylacja", 75, (253, 50, 35)))
         display.label(display.screen, "czas pracy:{}".format(str(datetime.timedelta(seconds = round(end - terrarium.startTime)))), "Nimbus Sans L", 30, 50, 440, (150, 150, 150), 100)
         self.touchPointList.append(display.button_with_text("back", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
@@ -96,26 +103,26 @@ class Gui:
         display.icons(0, 0, 255, "background")
 
         display.label(display.screen, "Timer 1: ", "Nimbus Sans L", 60, 30, 40, (253,180,165), 255)
-        self.touchPointList.append(display.button_with_text("Timer1_H-", display.screen, (200,10,80,50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
-        self.touchPointList.append(display.button_with_text("Timer1_H+", display.screen, (200,60,80,50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        self.touchPointList.append(display.button_with_text("SprayTimer1_H-", display.screen, (200,10,80,50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("SprayTimer1_H+", display.screen, (200,60,80,50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         display.button(display.screen, (285,10,100,100),(55,112,21), (55,112,21), 10, 2)
         display.label(display.screen, "{:02d}".format(sprayer.spraying1.hour), "Nimbus Sans L", 120, 290, 17, (220, 220, 220), 255)
         display.label(display.screen, ":", "Nimbus Sans L", 120, 382, 15, (220, 220, 220), 255)
         display.button(display.screen, (400, 10, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2)
         display.label(display.screen, "{:02d}".format(sprayer.spraying1.minute), "Nimbus Sans L", 120, 405, 17, (220, 220, 220), 255)
-        self.touchPointList.append(display.button_with_text("Timer1_M-", display.screen, (505, 10, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
-        self.touchPointList.append(display.button_with_text("Timer1_M+", display.screen, (505, 60, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        self.touchPointList.append(display.button_with_text("SprayTimer1_M-", display.screen, (505, 10, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("SprayTimer1_M+", display.screen, (505, 60, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
 
         display.label(display.screen, "Timer 2: ", "Nimbus Sans L", 60, 30, 170, (253,180,165), 255)
-        self.touchPointList.append(display.button_with_text("Timer2_H-", display.screen, (200, 140, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
-        self.touchPointList.append(display.button_with_text("Timer2_H+", display.screen, (200, 190, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        self.touchPointList.append(display.button_with_text("SprayTimer2_H-", display.screen, (200, 140, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("SprayTimer2_H+", display.screen, (200, 190, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         display.button(display.screen, (285, 140, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2)
         display.label(display.screen, "{:02d}".format(sprayer.spraying2.hour), "Nimbus Sans L", 120, 290, 147, (220, 220, 220), 255)
         display.label(display.screen, ":", "Nimbus Sans L", 120, 382, 145, (220, 220, 220), 255)
         display.button(display.screen, (400, 140, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2)
         display.label(display.screen, "{:02d}".format(sprayer.spraying2.minute), "Nimbus Sans L", 120, 405, 147, (220, 220, 220), 255)
-        self.touchPointList.append(display.button_with_text("Timer2_M-", display.screen, (505, 140, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
-        self.touchPointList.append(display.button_with_text("Timer2_M+", display.screen, (505, 190, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        self.touchPointList.append(display.button_with_text("SprayTimer2_M-", display.screen, (505, 140, 80, 50), (200, 200, 200), (250, 250, 250), 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("SprayTimer2_M+", display.screen, (505, 190, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
 
         display.label(display.screen, "Czas spryskiwania: ", "Nimbus Sans L", 60, 30, 290, (253, 180, 165), 255)
         self.touchPointList.append(display.button_with_text("SprayTime_-", display.screen, (420, 270, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "-", 110, (15, 15, 15)))
@@ -136,21 +143,124 @@ class Gui:
         self.touchPointList.append(display.button_with_text("back", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
         pygame.display.update()
 
+    def menu_terrarium(self):
+        end = timer()
+        display.icons(0, 0, 255, "background")
+
+        myTop = 20
+        display.label(display.screen, "Min wilgotność: ", "Nimbus Sans L", 48, 110, myTop+20, (253, 180, 165), 255)
+        self.touchPointList.append(display.button_with_text("MinHumidity_-", display.screen, (410, myTop, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "-", 110, (15, 15, 15)))
+        display.button(display.screen, (495, myTop, 200, 80), (55, 112, 21), (55, 112, 21), 10, 2)
+        display.label(display.screen, "{} %".format(terrarium.minimumHumidity), "Nimbus Sans L", 80, 525, myTop+10, (220, 220, 220), 255)
+        self.touchPointList.append(display.button_with_text("MinHumidity_+", display.screen, (700, myTop, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "+", 80, (15, 15, 15)))
+
+        myTop += 110
+        display.label(display.screen, "Temperatura na wyspie: ", "Nimbus Sans L", 45, 30, myTop+20, (253, 180, 165), 255)
+        self.touchPointList.append(display.button_with_text("ReqTemperatureIsland_-", display.screen, (410, myTop, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "-", 110, (15, 15, 15)))
+        display.button(display.screen, (495, myTop, 200, 80), (55, 112, 21), (55, 112, 21), 10, 2)
+        display.label(display.screen, "{}*C".format(terrarium.temperatureRequiredIsland), "Nimbus Sans L", 80, 520, myTop+10, (220, 220, 220), 255)
+        self.touchPointList.append(display.button_with_text("ReqTemperatureIsland_+", display.screen, (700, myTop, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "+", 80, (15, 15, 15)))
+
+        myTop += 110
+        display.label(display.screen, "minimalne UVI", "Nimbus Sans L", 48, 110, myTop+3, (253, 180, 165), 255)
+        display.label(display.screen, "dla ogrzewania: ", "Nimbus Sans L", 50, 110, myTop+40, (253, 180, 165), 255)
+        self.touchPointList.append(display.button_with_text("minUviForHeating_-", display.screen, (410, myTop, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "-", 110, (15, 15, 15)))
+        display.button(display.screen, (495, myTop, 200, 80), (55, 112, 21), (55, 112, 21), 10, 2)
+        display.label(display.screen, "{}°C".format(terrarium.minUviForHeating), "Nimbus Sans L", 80, 520, myTop+10, (220, 220, 220), 255)
+        self.touchPointList.append(display.button_with_text("minUviForHeating_+", display.screen, (700, myTop, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "+", 80, (15, 15, 15)))
+        
+        self.touchPointList.append(display.button_with_text("backToMain", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
+
+        pygame.display.update()
+
     def click_event(self, name):
-        if name == "sprayer":
-            self.activeTab = 2
-        elif name == "menu":
+        if name == "menu":
             self.activeTab = 1
-        elif name == "Timer1_H-":
-            print("working!!!")
+        elif name == "sprayer":
+            self.activeTab = 2
+            settingsSavedFlag = False
+        elif name == "terrarium":
+            self.activeTab = 3
+            settingsSavedFlag = False
+        elif name == "SprayTimer1_H-":
+            sprayer.spraying1 = self.change_time(sprayer.spraying1, -1, 0)
+        elif name == "SprayTimer1_H+":
+            sprayer.spraying1 = self.change_time(sprayer.spraying1, 1, 0)
+        elif name == "SprayTimer1_M-":
+            sprayer.spraying1 = self.change_time(sprayer.spraying1, 0, -1)
+        elif name == "SprayTimer1_M+":
+            sprayer.spraying1 = self.change_time(sprayer.spraying1, 0, 1)
+        elif name == "SprayTimer2_H-":
+            sprayer.spraying2 = self.change_time(sprayer.spraying2, -1, 0)
+        elif name == "SprayTimer2_H+":
+            sprayer.spraying2 = self.change_time(sprayer.spraying2, 1, 0)
+        elif name == "SprayTimer2_M-":
+            sprayer.spraying2 = self.change_time(sprayer.spraying2, 0, -1)
+        elif name == "SprayTimer2_M+":
+            sprayer.spraying2 = self.change_time(sprayer.spraying2, 0, 1)
+        elif name == "SprayTime_-":
+            if sprayer.sprayingTime > 0:
+                sprayer.sprayingTime -= 1
+            else:
+                sprayer.sprayingTime = 99  
+        elif name == "SprayTime_+":
+            if sprayer.sprayingTime < 99:
+                sprayer.sprayingTime += 1
+            else:
+                sprayer.sprayingTime = 0    
+        elif name == "SprayTimeManual_-":
+            if sprayer.sprayingTimeManual > 0:
+                sprayer.sprayingTimeManual -= 1
+            else:
+                sprayer.sprayingTimeManual = 99  
+        elif name == "SprayTimeManual_+":
+            if sprayer.sprayingTimeManual < 99:
+                sprayer.sprayingTimeManual += 1
+            else:
+                sprayer.sprayingTimeManual = 0   
+        elif name == "MinHumidity_-":
+            if terrarium.minimumHumidity > 0:
+                terrarium.minimumHumidity -= 1
+            else:
+                terrarium.minimumHumidity = 99  
+        elif name == "MinHumidity_+":
+            if terrarium.minimumHumidity < 99:
+                terrarium.minimumHumidity += 1
+            else:
+                terrarium.minimumHumidity = 0   
+        elif name == "ReqTemperatureIsland_-":
+            if terrarium.temperatureRequiredIsland > 0:
+                terrarium.temperatureRequiredIsland -= 1
+            else:
+                terrarium.temperatureRequiredIsland = 99  
+        elif name == "ReqTemperatureIsland_+":
+            if terrarium.temperatureRequiredIsland < 99:
+                terrarium.temperatureRequiredIsland += 1
+            else:
+                terrarium.temperatureRequiredIsland = 0
+        elif name == "minUviForHeating_-":
+            if terrarium.minUviForHeating > 0:
+                terrarium.minUviForHeating -= 0.01
+            else:
+                terrarium.minUviForHeating = 1.0  
+        elif name == "minUviForHeating_+":
+            if terrarium.minUviForHeating < 1:
+                terrarium.minUviForHeating += 0.01
+            else:
+                terrarium.minUviForHeating = 0     
         elif name == "back":
             if self.activeTab > 0:
                 self.activeTab -= 1
+        elif name == "backToMain":
+            if self.activeTab > 0:
+                self.activeTab = 0
         elif name == "exit":
             terrarium.runFlag = False
             time.sleep(1)
             pygame.quit()
             sys.exit()
+        else:
+            print("button: {} not found".format(name))
 
     def touch_event(self):
         for event in pygame.event.get():
@@ -169,5 +279,18 @@ class Gui:
                     if(px > clickX and px < (clickX + clickWidth) and py > clickY and py < (clickY + clickHeight)):
                         self.click_event(point[1])
                         pygame.event.clear
+
+    def change_time(self, time, hours, minutes):
+        newHour = time.hour + hours
+        if newHour < 0:
+            newHour += 24
+        if newHour > 23:
+            newHour -= 24
+        newMinutes = time.minute + minutes
+        if newMinutes < 0:
+            newMinutes += 60
+        if newMinutes > 59:
+            newMinutes -= 60
+        return datetime.time(newHour, newMinutes)
 
 gui = Gui()

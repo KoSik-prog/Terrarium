@@ -21,7 +21,7 @@ class Terrarium:
     uvi = 0.0
     socked_message_interval = 5
     minimumHumidity = 50
-    temperature_required_island = 29.0
+    temperatureRequiredIsland = 29.0
     minUviForHeating = 0.15 #UV index at which the heating turns on / does not turn on when the chameleon covers the sensor
     runFlag = True #flag keeping the main threads
     startTime = 0
@@ -37,7 +37,7 @@ class Terrarium:
         self.startTime = timer()
 
     def read_requred_island_temperature(self):
-        return self.temperature_required_island
+        return self.temperatureRequiredIsland
 
     def read_socket_message_interval(self):
         return self.socked_message_interval

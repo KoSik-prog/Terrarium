@@ -51,39 +51,45 @@ class Display:
         pygame.gfxdraw.filled_circle(surface, rect.left+cornerRadius, rect.bottom-cornerRadius-1, cornerRadius, colour)
         pygame.gfxdraw.filled_circle(surface, rect.right-cornerRadius-1, rect.bottom-cornerRadius-1, cornerRadius, colour)
 
-        rect_tmp = pygame.Rect(rect)
+        rectTmp = pygame.Rect(rect)
 
-        rect_tmp.width -= 2 * cornerRadius
-        rect_tmp.center = rect.center
-        pygame.draw.rect(surface, colour, rect_tmp)
+        rectTmp.width -= 2 * cornerRadius
+        rectTmp.center = rect.center
+        pygame.draw.rect(surface, colour, rectTmp)
 
-        rect_tmp.width = rect.width
-        rect_tmp.height -= 2 * cornerRadius
-        rect_tmp.center = rect.center
-        pygame.draw.rect(surface, colour, rect_tmp)
+        rectTmp.width = rect.width
+        rectTmp.height -= 2 * cornerRadius
+        rectTmp.center = rect.center
+        pygame.draw.rect(surface, colour, rectTmp)
+
+    def button_with_text(self, surface, rect, colourButton, borderColor, cornerRadius, borderThickness, text, size, colourText):    
+        self.button(surface, rect, colourButton, borderColor, cornerRadius, borderThickness)
+        xPos = rect[0] + (rect[2] / 2)
+        yPos = rect[1] + (rect[3] / 2)
+        self.label_center(surface, text, "Nimbus Sans L", size, xPos, yPos, colourText, 255)
 
     def button(self, surface, rect, colour, borderColor, cornerRadius, borderThickness):
         if cornerRadius < 0:
             raise ValueError("border radius ({cornerRadius}) must be >= 0")
 
-        rect_tmp = pygame.Rect(rect)
-        center = rect_tmp.center
+        rectTmp = pygame.Rect(rect)
+        center = rectTmp.center
 
         if borderThickness:
             if cornerRadius <= 0:
-                pygame.draw.rect(surface, borderColor, rect_tmp)
+                pygame.draw.rect(surface, borderColor, rectTmp)
             else:
-                self.draw_rounded_rect(surface, rect_tmp, borderColor, cornerRadius)
+                self.draw_rounded_rect(surface, rectTmp, borderColor, cornerRadius)
 
-            rect_tmp.inflate_ip(-2*borderThickness, -2*borderThickness)
+            rectTmp.inflate_ip(-2*borderThickness, -2*borderThickness)
             inner_radius = cornerRadius - borderThickness + 1
         else:
             inner_radius = cornerRadius
 
         if inner_radius <= 0:
-            pygame.draw.rect(surface, colour, rect_tmp)
+            pygame.draw.rect(surface, colour, rectTmp)
         else:
-            self.draw_rounded_rect(surface, rect_tmp, colour, inner_radius)
+            self.draw_rounded_rect(surface, rectTmp, colour, inner_radius)
 
     def label(self, screen, text, font, size, x, y, colour, alpha):
         a_sys_font = pygame.font.SysFont(font, size)
@@ -96,7 +102,7 @@ class Display:
         a_sys_font = pygame.font.SysFont(font, size)
         text = a_sys_font.render(text,True, colour)
         text.set_alpha(alpha)
-        screen.blit(text, (x-(text.get_width()/2), y))
+        screen.blit(text, (x-(text.get_width()/2), y-(text.get_height()/2)))
         return text.get_width()
 
     def label_with_background(self, screen, text, font, size, x, y, colour, alpha, bgcolour):

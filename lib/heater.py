@@ -26,6 +26,7 @@ class Heater:
     heatControlFlag = False
     pmwChangeTime = 1  # s time in seconds between each %PWM
     dimmingTime = 3  # s time in seconds between each %PWM for dimming
+    lightOffTime = 6 #s * 100 dimm time to light off
     timeLastUpdatePwm = 0  # variable to save the time of the last adjustment
     pid = PID.PID(3, 4, 5)
 
@@ -35,8 +36,9 @@ class Heater:
         self.autoOn = autoOn
         self.autoOff = autoOff
         # --- PID settings -----
-        #self.pid.SetPoint = terrarium.read_requred_island_temperature()
+        self.pid.SetPoint = terrarium.read_requred_island_temperature()
         self.pid.setSampleTime(60)
+        gpio.set_heater_pwm(0)
 
     def heater_thread(self):
         while terrarium.runFlag == True:
@@ -68,6 +70,14 @@ class Heater:
                 gpio.set_heater_pwm(gpio.read_heater_pwm() - 1)
                 self.timeLastUpdatePwm = datetime.datetime.now()
             time.sleep(.1)
+            
+    def dimm_light_thread(self):
+        while gpio.check_heater_flag() == True:  # dimming
+            duration = datetime.datetime.now() - self.timeLastUpdatePwm
+            if (duration.total_seconds() >= self.lightOffTime):
+                gpio.set_heater_pwm(gpio.read_heater_pwm() - 1)
+                self.timeLastUpdatePwm = datetime.datetime.now()
+            time.sleep(.1)
 
     def check_timer(self):
         format = '%H:%M:%S.%f'
@@ -91,11 +101,9 @@ class Heater:
         if (self.heatControlFlag == False and (int(stampOn.total_seconds()) > 0) and (int(stampOff.total_seconds()) < (-60)) and self.manualControlFlag == False):
             self.pmwChangeTime = 1.0
             self.heatControlFlag = True
-            heaterPwmControlTH = threading.Thread(
-                target=self.pwm_control_thread)
+            heaterPwmControlTH = threading.Thread(target=self.pwm_control_thread)
             log.add_log("AUTO Heater -> ON")
             heaterPwmControlTH.start()  # run thread
-        # and self.manualControlFlag==False):# and s.is_alive()==True):
         if (self.heatControlFlag == True and (int(stampOff.total_seconds()) > 0) and (int(stampOff.total_seconds()) < 60)):
             log.add_log("AUTO Heater -> OFF")
             self.heatControlFlag = False
@@ -108,6 +116,19 @@ class Heater:
             if (self.heatControlFlag == True):
                 self.pwmRequired = max(min(int(self.pid.output), 100), 0)
                 #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.uvi, terrarium.temperatureTop, self.pwmRequired, self.heatControlFlag))
+                
+    def dim_light(self):
+        self.heatControlFlag = False
+        gpio.set_heater_pwm(100)
+        dimmLightTH = threading.Thread(target=self.dimm_light_thread)
+        log.add_log("Light off")
+        dimmLightTH.start()  # run thread
+        
+    def set_heat_control_flag(self, flag):
+        self.heatControlFlag = flag
+        
+    def get_heat_control_flag(self):
+        return self.heatControlFlag
 
 
-heater = Heater(13, 50, '11:00:00.0000', '17:30:00.0000')
+heater = Heater(13, 50, '11:00:00.0000', '16:30:00.0000')

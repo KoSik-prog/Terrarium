@@ -53,7 +53,7 @@ class Main:
         self.start_terra()
 
     def start_terra(self):
-        while (1):
+        while terrarium.runFlag == True:
             socket.send_message_to_server()
             time.sleep(1)
 

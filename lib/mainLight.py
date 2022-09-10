@@ -15,13 +15,14 @@ try:
     from terrarium import *
     from lib.inout import *
     from lib.log import *
+    from lib.heater import *
 except ImportError:
     print("Import error - displayBrightness")
 
 
 class MainLight:
     manualControlFlag = False
-    timeToResume = 120  # seconds - time until the lamp is turned on after restarting
+    timeToResume = 20  # seconds - time until the lamp is turned on after restarting
 
     def __init__(self, pin, autoOn, autoOff):
         gpio.set_as_output(pin)
@@ -63,17 +64,11 @@ class MainLight:
             time.sleep(20)
         if (gpio.check_main_light_flag() == 1 and (int(offTimeDifference.total_seconds()) > 0) and (int(offTimeDifference.total_seconds()) < 60) and self.manualControlFlag == False):
             log.add_log("AUTO main light -> OFF")
-            """lampaHalogen.czasPWMustawienie =0
-            lampaHalogen.pwmWymagane =100
-            for i in range(30):
-                if(lampaHalogen.pwm==100):
-                    break;
-                time.sleep(1)
-            lampaHalogen.czasPWMustawienie =1"""
+            heater.set_heat_control_flag(False)
+            heater.dim_light()
+            time.sleep(0.5)
             gpio.lamp_off(self.pin)
-            """lampaHalogen.czasPWMustawienie =(self.czasWygaszania*60)/100
-            lampaHalogen.pwmWymagane =0"""
             time.sleep(20)
 
 
-mainLight = MainLight(19, '8:00:00.0000', '19:15:00.0000')
+mainLight = MainLight(19, '8:00:00.0000', '19:00:00.0000')

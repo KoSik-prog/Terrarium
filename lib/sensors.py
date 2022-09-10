@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:        sensors
 # Purpose:
 #
@@ -8,12 +8,21 @@
 #
 # Created:     27.08.2022
 # Copyright:   (c) kosik 2022
-#-------------------------------------------------------------------------------
-import sys, smbus, board, busio, adafruit_veml6075, time, datetime
+# -------------------------------------------------------------------------------
+try:
+    import sys
+    import smbus
+    import board
+    import busio
+    import adafruit_veml6075
+    import time
+    import datetime
+    from terrarium import *
+    from lib.system import *
+    from lib.log import *
+except ImportError:
+    print("Import error - sensors")
 
-from terrarium import *
-from lib.system import *
-from lib.log import *
 
 class Sensors:
     UVA = 0.0
@@ -21,10 +30,14 @@ class Sensors:
     UVI = 0.0
     dataArrayUVA = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     dataArrayUVB = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    dataArrayTempTop = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    dataArrayTempBottom = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    dataArrayHumiTop = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    dataArrayHumiBottom = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    dataArrayTempTop = [0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    dataArrayTempBottom = [0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    dataArrayHumiTop = [0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    dataArrayHumiBottom = [0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def __init__(self, address_temp_top, address_temp_bottom):
         self.i2cBus = None
@@ -50,7 +63,7 @@ class Sensors:
 
     def read_light_index(self):
         i2c = busio.I2C(board.SCL, board.SDA)
-        veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time = 100)
+        veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time=100)
         time.sleep(0.1)
         try:
             self.uva = veml6075.uva
@@ -61,7 +74,7 @@ class Sensors:
         except NameError:
             log.add_log('i2c bus error!')
             log.add_error_log('i2c bus error!')
-            veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time = 100)
+            veml6075 = adafruit_veml6075.VEML6075(i2c, integration_time=100)
             time.sleep(0.1)
             self.uvb = veml6075.uvb
             self.uvi = veml6075.uv_index
@@ -73,10 +86,13 @@ class Sensors:
         self.run_temperature_sensor(self.address_temp_top)
         self.run_temperature_sensor(self.address_temp_bottom)
         time.sleep(0.5)
-        terrarium.temperatureTop, terrarium.humidityTop = self.read_temp_humi(self.address_temp_top)
-        terrarium.temperatureBottom, terrarium.humidityBottom = self.read_temp_humi(self.address_temp_bottom)
+        terrarium.temperatureTop, terrarium.humidityTop = self.read_temp_humi(
+            self.address_temp_top)
+        terrarium.temperatureBottom, terrarium.humidityBottom = self.read_temp_humi(
+            self.address_temp_bottom)
         self.add_to_array(self.dataArrayTempTop, terrarium.temperatureTop)
-        self.add_to_array(self.dataArrayTempBottom, terrarium.temperatureBottom)
+        self.add_to_array(self.dataArrayTempBottom,
+                          terrarium.temperatureBottom)
         self.i2c_bus_deinit()
 
     def are_sensors_ok(self):
@@ -93,7 +109,6 @@ class Sensors:
         resultTempBottom = self.is_measurement_ok(self.dataArrayTempBottom)
         resultHumiTop = self.is_measurement_ok(self.dataArrayHumiTop)
         resultHumiBottom = self.is_measurement_ok(self.dataArrayHumiBottom)
-        #print('temp sensors check: ' + str(resultTempTop) + ' / ' + str(resultTempBottom) + ' : ' + str(resultHumiTop) + ' / ' + str(resultHumiBottom))
         if resultTempTop == True or resultTempBottom == True or resultHumiTop == True or resultHumiBottom == True:
             return True
         else:
@@ -103,12 +118,10 @@ class Sensors:
         resultUVA = self.is_measurement_ok(self.dataArrayUVA)
         resultUVB = self.is_measurement_ok(self.dataArrayUVB)
 
-        #print('light sensor check: ' + str(resultUVA) + ' / ' + str(resultUVB))
         zeroCheckresult = 0
         for i in range(len(self.dataArrayUVA)):
             if self.dataArrayUVA[i] == 0.0:
                 zeroCheckresult += 1
-        #print(str(zeroCheckresult) + ' : ' + str(len(self.dataArrayUVA)))
         if resultUVA == True or resultUVB == True or zeroCheckresult == len(self.dataArrayUVA):
             return True
         else:
@@ -120,7 +133,8 @@ class Sensors:
         for i in range(len(array) - 1):
             if array[i] == array[i + 1]:
                 diff += 1
-        if diff == (len(array) - 1): #if the result is equal to the number of comparisons it returns False as an error
+        # if the result is equal to the number of comparisons it returns False as an error
+        if diff == (len(array) - 1):
             return False
         else:
             return True
@@ -138,9 +152,9 @@ class Sensors:
     def i2c_bus_init(self):
         self.i2cBus = smbus.SMBus(1)
         time.sleep(0.1)
-    
+
     def i2c_bus_deinit(self):
-        del self.i2cBus #delete object
+        del self.i2cBus  # delete object
 
     def run_temperature_sensor(self, address):
         self.i2cBus.write_i2c_block_data(address, 0x2C, [0x06])
@@ -155,5 +169,6 @@ class Sensors:
         temp = ((((self.data[0] * 256.0) + self.data[1]) * 175) / 65535.0) - 45
         humi = 100 * (self.data[3] * 256 + self.data[4]) / 65535.0
         return temp, humi
+
 
 sensors = Sensors(0x44, 0x45)

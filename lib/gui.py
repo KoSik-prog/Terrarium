@@ -8,14 +8,17 @@
 # Created:     28.08.2022
 # Copyright:   (c) kosik 2022
 #-------------------------------------------------------------------------------
-from lib.log import *
-from lib.mainLight import *
-from lib.sensors import *
-from lib.heater import *
-from lib.sprayer import *
-from lib.display import *
-from lib.settings import *
-from terrarium import *
+try:
+    from lib.log import *
+    from lib.mainLight import *
+    from lib.sensors import *
+    from lib.heater import *
+    from lib.sprayer import *
+    from lib.display import *
+    from lib.settings import *
+    from terrarium import *
+except ImportError:
+    print("Import error - gui")
 
 class Gui:
     bgcolor=(0, 0, 0, 255)
@@ -64,7 +67,7 @@ class Gui:
 
         if(gpio.check_heater_flag() == True):
             display.icons(10, iconsPosition, 255, "bulb2")
-            dl=display.label_center(display.screen, "{}%".format(gpio.read_heater_pwm()), "Nimbus Sans L", 48, 70, iconsPosition+50, (235, 0, 69), 255)
+            dl=display.label_center(display.screen, "{}%".format(gpio.read_heater_pwm()), "Nimbus Sans L", 48, 70, iconsPosition + 65, (235, 0, 69), 255)
             iconsPosition += 125
 
         if(gpio.check_sprayer_flag() == True):

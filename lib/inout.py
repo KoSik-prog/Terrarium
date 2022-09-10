@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:        inout
 #              GPIO module
 #
@@ -8,23 +8,27 @@
 #
 # Created:     29.08.2022
 # Copyright:   (c) kosik 2022
-#-------------------------------------------------------------------------------
-import RPi.GPIO as GPIO
-from lib.log import *
+# -------------------------------------------------------------------------------
+try:
+    import RPi.GPIO as GPIO
+    from lib.log import *
+except ImportError:
+    print("Import error - inout")
+
 
 class Gpio:
-    heater = None #object container
+    heater = None  # object container
     heaterFlag = False
     heaterPwm = 0
     mainLightFlag = False
     sprayerFlag = False
-    
+
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        #GPIO.setup(12, GPIO.OUT) #dripper ENABLE pin
-        #GPIO.setup(20, GPIO.OUT) #dripper STEP
-        #GPIO.setup(16, GPIO.OUT) #dripper DIR
+        # GPIO.setup(12, GPIO.OUT) #dripper ENABLE pin
+        # GPIO.setup(20, GPIO.OUT) #dripper STEP
+        # GPIO.setup(16, GPIO.OUT) #dripper DIR
 
     def set_heater_pwm(self, pwm):
         self.heater.start(pwm)
@@ -34,7 +38,7 @@ class Gpio:
         else:
             self.heaterFlag = False
 
-    def set_as_dac(self, pin, frequency): #PWM
+    def set_as_dac(self, pin, frequency):  # PWM
         self.set_as_output(pin)
         self.heater = GPIO.PWM(pin, frequency)  # DAC start
         self.heater.start(0)
@@ -69,5 +73,6 @@ class Gpio:
     def lamp_off(self, pin):
         GPIO.output(pin, GPIO.LOW)
         self.mainLightFlag = False
+
 
 gpio = Gpio()

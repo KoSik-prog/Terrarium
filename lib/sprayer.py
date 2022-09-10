@@ -20,7 +20,7 @@ class Sprayer:
     spraying1 = datetime.time(9, 0)
     spraying2 = datetime.time(17, 00)
     automaticSprayerTimeOn = datetime.time(9, 00) #additional spraying is active during these time
-    automaticSprayerTimeOff = datetime.time(19, 38)
+    automaticSprayerTimeOff = datetime.time(17, 00)
     sprayingTime = 12
     sprayingTimeManual = 12
     lastSpraying = 0

@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Name:        watchdog module
 # Purpose:
 #
@@ -6,11 +6,16 @@
 #
 # Created:     21.05.2020
 # Copyright:   (c) kosik 2020
-#-------------------------------------------------------------------------------
-from lib.log import *
+# -------------------------------------------------------------------------------
+try:
+    from lib.log import *
+    import xml.etree.cElementTree as ET
+    import time
+    import os
+    import sys
+except ImportError:
+    print("Import error - watchdog module")
 
-import xml.etree.cElementTree as ET
-import time, os, sys
 
 class Watchdog:
     watchdogFlag = 0
@@ -22,18 +27,19 @@ class Watchdog:
         log.add_watchdog_log("Watchdog starting...")
         time.sleep(1200)
         log.add_watchdog_log("Watchdog started")
-        while(1):
+        while (1):
             self.watchdog_set()
             time.sleep(120)
             self.watchdog_read()
-            log.add_watchdog_log('watchdog flag = {}'.format(self.watchdogFlag))
+            log.add_watchdog_log(
+                'watchdog flag = {}'.format(self.watchdogFlag))
             sys.stdout.flush()
-            if(self.watchdogFlag == 0):
+            if (self.watchdogFlag == 0):
                 log.add_watchdog_log('RESET!')
                 #os.system('sudo shutdown -r now')
 
     def read(self):
-        tree = ET.ElementTree(file = self.path)
+        tree = ET.ElementTree(file=self.path)
         root = tree.getroot()
         self.watchdogFlag = int(root.find("watchdogFlag").text)
 
@@ -48,5 +54,6 @@ class Watchdog:
         ET.SubElement(setings, "watchdogFlag").text = str(1)
         tree2 = ET.ElementTree(setings)
         tree2.write(self.path)
+
 
 watchdog = Watchdog('Desktop/terra/')

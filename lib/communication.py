@@ -34,8 +34,8 @@ class Socket:
         self.socketLastSendTime = datetime.datetime.now()
 
     def send_message_to_server(self):
-        if ((datetime.datetime.now() - self.socketLastSendTime) > (datetime.timedelta(minutes=terrarium.read_socket_message_interval()))):
-            self.send_message(terrarium.return_socket_message())
+        if ((datetime.datetime.now() - self.socketLastSendTime) > (datetime.timedelta(minutes=terrarium.get_socket_message_interval()))):
+            self.send_message(terrarium.get_socket_message())
             log.add_log("Up:{:.1f}°C/{:.0f}% | Dn:{:.1f}°C/{:.0f}% | UVA:{:.2f}, UVB:{:.2f}, UVI:{:.4f}".format(terrarium.temperatureTop,
                         terrarium.humidityTop, terrarium.temperatureBottom, terrarium.humidityBottom, terrarium.uva, terrarium.uvb, terrarium.uvi))
 

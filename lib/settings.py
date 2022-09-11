@@ -13,10 +13,11 @@ try:
     import xml.etree.cElementTree as ET
     from timeit import default_timer as tim
     import datetime
+    from terrarium import *
     from lib.heater import *
     from lib.sprayer import *
     from lib.log import *
-    from terrarium import *
+    from lib.mainLight import *
 except ImportError:
     print("Import error - settings")
 
@@ -27,20 +28,16 @@ class Settings:
 
     def save_settings(self):
         setings = ET.Element("settings")
-
-        ET.SubElement(setings, "minHumidity").text = str(
-            terrarium.minimumHumidity)
-        ET.SubElement(setings, "sprying1").text = str(sprayer.spraying1)
-        ET.SubElement(setings, "sprying2").text = str(sprayer.spraying2)
-        ET.SubElement(setings, "sprayingTime").text = str(sprayer.sprayingTime)
-        ET.SubElement(setings, "sprayingTimeManual").text = str(
-            sprayer.sprayingTimeManual)
-        ET.SubElement(setings, "minimumHumidity").text = str(
-            terrarium.minimumHumidity)
-        ET.SubElement(setings, "temperatureRequiredIsland").text = str(
-            terrarium.temperatureRequiredIsland)
-        ET.SubElement(setings, "minUviForHeating").text = str(
-            terrarium.minUviForHeating)
+        
+        ET.SubElement(setings, "sprying1").text = str(sprayer.get_spraying_timer(0))
+        ET.SubElement(setings, "sprying2").text = str(sprayer.get_spraying_timer(1))
+        ET.SubElement(setings, "sprayingTime").text = str(sprayer.get_spraying_time())
+        ET.SubElement(setings, "sprayingTimeManual").text = str(sprayer.get_spraying_time_manual())
+        ET.SubElement(setings, "minimumHumidity").text = str(terrarium.get_minimum_humidity())
+        ET.SubElement(setings, "temperatureRequiredIsland").text = str(terrarium.get_requred_island_temperature())
+        ET.SubElement(setings, "minUviForHeating").text = str(terrarium.get_min_uvi_for_heating())
+        ET.SubElement(setings, "mainLightOnTime").text = str(mainLight.get_timer_str(0))
+        ET.SubElement(setings, "mainLightOffTime").text = str(mainLight.get_timer_str(1))
 
         tree2 = ET.ElementTree(setings)
         tree2.write(self.filePath + 'settings.xml')
@@ -49,18 +46,16 @@ class Settings:
     def load_settings(self):
         tree = ET.ElementTree(file=self.filePath + 'settings.xml')
         root = tree.getroot()
-
-        terrarium.minimumHumidity = int(root.find('minHumidity').text)
-        sprayer.spraying1 = datetime.datetime.strptime(
-            root.find('sprying1').text, '%H:%M:%S').time()
-        sprayer.spraying2 = datetime.datetime.strptime(
-            root.find('sprying2').text, '%H:%M:%S').time()
-        sprayer.sprayingTime = int(root.find('sprayingTime').text)
-        sprayer.sprayingTimeManual = int(root.find('sprayingTimeManual').text)
-        terrarium.minimumHumidity = int(root.find('minimumHumidity').text)
-        terrarium.temperatureRequiredIsland = float(
-            root.find('temperatureRequiredIsland').text)
-        terrarium.minUviForHeating = float(root.find('minUviForHeating').text)
+        
+        sprayer.set_spraying_timer(0, datetime.datetime.strptime(root.find('sprying1').text, '%H:%M:%S').time())
+        sprayer.set_spraying_timer(1, datetime.datetime.strptime(root.find('sprying2').text, '%H:%M:%S').time())
+        sprayer.set_spraying_time(int(root.find('sprayingTime').text))
+        sprayer.set_spraying_time_manual(int(root.find('sprayingTimeManual').text))
+        terrarium.set_minimum_humidity(int(root.find('minimumHumidity').text))
+        terrarium.set_requred_island_temperature(float(root.find('temperatureRequiredIsland').text))
+        terrarium.set_min_uvi_for_heating(float(root.find('minUviForHeating').text))
+        mainLight.set_timer(0, root.find('mainLightOnTime').text)
+        mainLight.set_timer(1, root.find('mainLightOffTime').text)
 
         log.add_log("Settings loaded")
 

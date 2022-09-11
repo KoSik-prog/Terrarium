@@ -22,13 +22,14 @@ except ImportError:
 
 class MainLight:
     manualControlFlag = False
-    timeToResume = 20  # seconds - time until the lamp is turned on after restarting
+    timeToResume = 300  # seconds - time until the lamp is turned on after restarting
+    timeFormat = '%H:%M:%S.%f'
 
     def __init__(self, pin, autoOn, autoOff):
         gpio.set_as_output(pin)
         self.pin = pin
-        self.autoOn = autoOn
-        self.autoOff = autoOff
+        self.autoOn = autoOn + ":00.0"
+        self.autoOff = autoOff + ":00.0"
 
     def main_light_thread(self):
         while terrarium.runFlag == True:
@@ -37,19 +38,18 @@ class MainLight:
             time.sleep(10)
 
     def check_timer(self):
-        format = '%H:%M:%S.%f'
         actualTime = datetime.datetime.now().time()
 
         try:
             onTimeDifference = datetime.datetime.strptime(
-                str(actualTime), format) - datetime.datetime.strptime(self.autoOn, format)
+                str(actualTime), self.timeFormat) - datetime.datetime.strptime(self.autoOn, self.timeFormat)
         except ValueError as e:
-            log.add_log('error: ', e)
+            log.add_log('error: '+ e)
         try:
             offTimeDifference = datetime.datetime.strptime(
-                str(actualTime), format) - datetime.datetime.strptime(self.autoOff, format)
+                str(actualTime), self.timeFormat) - datetime.datetime.strptime(self.autoOff, self.timeFormat)
         except ValueError as e:
-            log.add_log('error: ', e)
+            log.add_log('error: '+ e)
         # ------ clear flags ------------------------
         if (int(onTimeDifference.total_seconds()) > (-15) and int(onTimeDifference.total_seconds()) < 0 and self.manualControlFlag == True):
             self.manualControlFlag = False
@@ -69,6 +69,28 @@ class MainLight:
             time.sleep(0.5)
             gpio.lamp_off(self.pin)
             time.sleep(20)
+            
+    def get_timer(self, timerNr, isHour):
+        if timerNr == 0:
+            bufTime = datetime.datetime.strptime(self.autoOn, self.timeFormat)
+        else:
+            bufTime = datetime.datetime.strptime(self.autoOff, self.timeFormat)
+        if isHour == True:
+            return bufTime.hour
+        else:
+            return bufTime.minute
+            
+    def set_timer(self, timerNr, time):
+        if timerNr == 0:
+            self.autoOn = time
+        else:
+            self.autoOff = time
+            
+    def get_timer_str(self, timerNr):
+        if timerNr == 0:
+            return self.autoOn
+        else:
+            return self.autoOff
+        
 
-
-mainLight = MainLight(19, '8:00:00.0000', '19:00:00.0000')
+mainLight = MainLight(19, '8:00', '19:00')

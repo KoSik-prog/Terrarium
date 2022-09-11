@@ -36,7 +36,7 @@ class Heater:
         self.autoOn = autoOn
         self.autoOff = autoOff
         # --- PID settings -----
-        self.pid.SetPoint = terrarium.read_requred_island_temperature()
+        self.pid.SetPoint = terrarium.get_requred_island_temperature()
         self.pid.setSampleTime(60)
         gpio.set_heater_pwm(0)
 
@@ -121,7 +121,6 @@ class Heater:
         self.heatControlFlag = False
         gpio.set_heater_pwm(100)
         dimmLightTH = threading.Thread(target=self.dimm_light_thread)
-        log.add_log("Light off")
         dimmLightTH.start()  # run thread
         
     def set_heat_control_flag(self, flag):

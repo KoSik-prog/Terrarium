@@ -38,13 +38,28 @@ class Terrarium:
         self.startTime = timer()
         self.lastWatchdogResetTime = datetime.datetime.now()
 
-    def read_requred_island_temperature(self):
+    def get_requred_island_temperature(self):
         return self.temperatureRequiredIsland
-
-    def read_socket_message_interval(self):
+    
+    def get_minimum_humidity(self):
+        return terrarium.minimumHumidity
+    
+    def get_min_uvi_for_heating(self):
+        return terrarium.minUviForHeating
+    
+    def set_requred_island_temperature(self, temp):
+        self.temperatureRequiredIsland = temp
+        
+    def set_minimum_humidity(self, humi):
+        terrarium.minimumHumidity = humi
+    
+    def set_min_uvi_for_heating(self, uvi):
+        terrarium.minUviForHeating = uvi
+        
+    def get_socket_message_interval(self):
         return self.socked_message_interval
 
-    def return_socket_message(self):
+    def get_socket_message(self):
         return "terrarium.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}".format(self.temperatureTop, self.humidityTop, self.temperatureBottom, self.humidityBottom, self.uvi)
 
 

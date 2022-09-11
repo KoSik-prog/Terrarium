@@ -72,5 +72,23 @@ class Sprayer:
     
     def get_spraying_time(self):
         return self.sprayingTime
+    
+    def get_spraying_timer(self, timerNr):
+        if timerNr == 0:
+            return self.spraying1
+        else:
+            return self.spraying2
+        
+    def set_spraying_time_manual(self, time):
+        self.sprayingTimeManual = time
+    
+    def set_spraying_time(self, time):
+        self.sprayingTime = time
+    
+    def set_spraying_timer(self, timerNr, time):
+        if timerNr == 0:
+            self.spraying1 = time
+        else:
+            self.spraying2 = time
 
 sprayer = Sprayer(21)

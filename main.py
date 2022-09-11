@@ -41,6 +41,7 @@ class Main:
         # +++++++++++++++++++++ delay for safety ++++++++++++++++++
         time.sleep(10)
         ###########################################################
+        #settings.save_settings()
         settings.load_settings()
         # -------------THREADS INIT--------------------------------
         self.thread_sensors_init()

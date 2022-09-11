@@ -9,6 +9,7 @@
 # Copyright:   (c) kosik 2022
 # -------------------------------------------------------------------------------
 try:
+    import datetime
     from lib.log import *
     from lib.mainLight import *
     from lib.sensors import *
@@ -28,6 +29,7 @@ class Gui:
     menuTimeStamp = None  # menu display time stamp
     menuTime = 30  # how long menu is displayed
     settingsSavedFlag = False
+    timeFormat = '%H:%M:%S.%f'
 
     def __init__(self):
         display.screen.fill(self.bgcolor)
@@ -41,11 +43,13 @@ class Gui:
             if (self.activeTab == 0):
                 self.main_tab()
             elif (self.activeTab == 1):
-                self.menu_main()
+                self.menu_main_tab()
             elif (self.activeTab == 2):
-                self.menu_sprayer()
+                self.menu_sprayer_tab()
             elif (self.activeTab == 3):
-                self.menu_terrarium()
+                self.menu_terrarium_tab()
+            elif (self.activeTab == 4):
+                self.menu_lighting_tab()
             time.sleep(tfps)
             # when idle then return to the home screen
             if ((datetime.datetime.now() - self.menuTimeStamp) > (datetime.timedelta(seconds=self.menuTime))):
@@ -99,25 +103,25 @@ class Gui:
         self.touchPointList.append(((630, 0, 800, 150), "exit"))
         pygame.display.update()
 
-    def menu_main(self):
+    def menu_main_tab(self):
         end = timer()
 
         display.icons(0, 0, 255, "background")
         self.touchPointList.append(display.button_with_text("sprayerTab", display.screen, (
             30, 60, 300, 120), (223, 169, 191), (223, 169, 151), 10, 2, "deszcz", 80, (253, 50, 35)))
-        self.touchPointList.append(display.button_with_text("dripper", display.screen, (
+        self.touchPointList.append(display.button_with_text("dripperTab", display.screen, (
             30, 220, 300, 120), (216, 155, 43), (216, 155, 0), 10, 2, "dripper", 80, (253, 50, 35)))
-        self.touchPointList.append(display.button_with_text("terrarium", display.screen, (
+        self.touchPointList.append(display.button_with_text("terrariumTab", display.screen, (
             360, 60, 300, 120), (187, 179, 41), (187, 179, 0), 10, 2, "terrarium", 75, (253, 50, 35)))
-        self.touchPointList.append(display.button_with_text("ventilation", display.screen, (
-            360, 220, 300, 120), (213, 0, 88), (213, 0, 38), 10, 2, "wentylacja", 75, (253, 50, 35)))
+        self.touchPointList.append(display.button_with_text("lightingTab", display.screen, (
+            360, 220, 300, 120), (213, 0, 88), (213, 0, 38), 10, 2, "oświetlenie", 75, (253, 50, 35)))
         display.label(display.screen, "czas pracy:{}".format(str(datetime.timedelta(seconds=round(
             end - terrarium.startTime)))), "Nimbus Sans L", 30, 50, 440, (150, 150, 150), 100)
         self.touchPointList.append(display.button_with_text("back", display.screen, (
             690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
         pygame.display.update()
 
-    def menu_sprayer(self):
+    def menu_sprayer_tab(self):
         end = timer()
         display.icons(0, 0, 255, "background")
         buttonMinColour = (180, 180, 180)
@@ -162,8 +166,7 @@ class Gui:
         self.touchPointList.append(display.button_with_text("back", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
         pygame.display.update()
 
-    def menu_terrarium(self):
-        end = timer()
+    def menu_terrarium_tab(self):
         display.icons(0, 0, 255, "background")
 
         myTop = 20
@@ -189,7 +192,34 @@ class Gui:
         self.touchPointList.append(display.button_with_text("minUviForHeating_+", display.screen,  (700, myTop, 80, 80), (200, 200, 200), (250, 250, 250), 10, 2, "+", 80, (15, 15, 15)))
 
         self.touchPointList.append(display.button_with_text("backToMain", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
+        pygame.display.update()
+        
+    def menu_lighting_tab(self):
+        buttonMinColour = (180, 180, 180)
+        buttonMinBorderColour = (200, 200, 200)
+        display.icons(0, 0, 255, "background")
 
+        xPos = 5
+        yPos = 90
+        display.label_center(display.screen, "Main Light Timer", "Nimbus Sans L", 60, 400, 40, (253, 180, 165), 255)
+        self.touchPointList.append(display.button_with_text("MainLightTimer1_H-", display.screen, (xPos, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text( "MainLightTimer1_H+", display.screen, (xPos, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        display.button_with_text("-", display.screen,  (xPos+85, yPos, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{:02d}".format(mainLight.get_timer(0, True)), 120, (220, 220, 220))
+        display.label(display.screen, ":", "Nimbus Sans L", 120, xPos+182, yPos+5, (220, 220, 220), 255)
+        display.button_with_text("-", display.screen,  (xPos+200, yPos, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{:02d}".format(mainLight.get_timer(0, False)), 120, (220, 220, 220))
+        self.touchPointList.append(display.button_with_text("MainLightTimer1_M-", display.screen, (xPos+305, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("MainLightTimer1_M+", display.screen, (xPos+305, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        xPos = 410
+        yPos = 90
+        self.touchPointList.append(display.button_with_text("MainLightTimer2_H-", display.screen, (xPos, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text( "MainLightTimer2_H+", display.screen, (xPos, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        display.button_with_text("-", display.screen,  (xPos+85, yPos, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{:02d}".format(mainLight.get_timer(1, True)), 120, (220, 220, 220))
+        display.label(display.screen, ":", "Nimbus Sans L", 120, xPos+182, yPos+5, (220, 220, 220), 255)
+        display.button_with_text("-", display.screen,  (xPos+200, yPos, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{:02d}".format(mainLight.get_timer(1, False)), 120, (220, 220, 220))
+        self.touchPointList.append(display.button_with_text("MainLightTimer2_M-", display.screen, (xPos+305, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("MainLightTimer2_M+", display.screen, (xPos+305, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        
+        self.touchPointList.append(display.button_with_text("backToMain", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
         pygame.display.update()
 
     def click_event(self, name):
@@ -198,8 +228,11 @@ class Gui:
         elif name == "sprayerTab":
             self.activeTab = 2
             settingsSavedFlag = False
-        elif name == "terrarium":
+        elif name == "terrariumTab":
             self.activeTab = 3
+            settingsSavedFlag = False
+        elif name == "lightingTab":
+            self.activeTab = 4
             settingsSavedFlag = False
         elif name == "SprayTimer1_H-":
             sprayer.spraying1 = self.change_time(sprayer.spraying1, -1, 0)
@@ -269,6 +302,22 @@ class Gui:
                 terrarium.minUviForHeating += 0.01
             else:
                 terrarium.minUviForHeating = 0
+        elif name == "MainLightTimer1_H-": #main light
+            self.change_time_mainLight(0, -1, 0)
+        elif name == "MainLightTimer1_H+": #main light
+            self.change_time_mainLight(0, +1, 0)
+        elif name == "MainLightTimer1_M-": #main light
+            self.change_time_mainLight(0, 0, -1)
+        elif name == "MainLightTimer1_M+": #main light
+            self.change_time_mainLight(0, 0, +1)
+        elif name == "MainLightTimer2_H-": #main light
+            self.change_time_mainLight(1, -1, 0)
+        elif name == "MainLightTimer2_H+": #main light
+            self.change_time_mainLight(1, +1, 0)
+        elif name == "MainLightTimer2_M-": #main light
+            self.change_time_mainLight(1, 0, -1)
+        elif name == "MainLightTimer2_M+": #main light
+            self.change_time_mainLight(1, 0, +1)
         elif name == "back":
             if self.activeTab > 0:
                 self.activeTab -= 1
@@ -313,6 +362,10 @@ class Gui:
         if newMinutes > 59:
             newMinutes -= 60
         return datetime.time(newHour, newMinutes)
-
+    
+    def change_time_mainLight(self, timerNr, hours, minutes):
+        convTime = datetime.time(mainLight.get_timer(timerNr, True), mainLight.get_timer(timerNr, False))
+        myTime = self.change_time(convTime, hours, minutes)
+        mainLight.set_timer(timerNr, myTime.strftime(self.timeFormat))
 
 gui = Gui()

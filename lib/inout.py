@@ -22,6 +22,7 @@ class Gpio:
     heaterPwm = 0
     mainLightFlag = False
     sprayerFlag = False
+    foggerFlag = False
 
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
@@ -73,6 +74,14 @@ class Gpio:
     def lamp_off(self, pin):
         GPIO.output(pin, GPIO.LOW)
         self.mainLightFlag = False
+        
+    def fogger_on(self, pin):
+        GPIO.output(pin, GPIO.HIGH)
+        self.foggerFlag = True
 
+    def fogger_off(self, pin):
+        GPIO.output(pin, GPIO.LOW)
+        self.foggerFlag = False
+        
 
 gpio = Gpio()

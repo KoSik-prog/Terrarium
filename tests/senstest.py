@@ -51,15 +51,15 @@ class Temp():
         try:
             self.i2cbus.write_i2c_block_data(0x44, 0x2C, [0x06])
         except pigpio.error as e:
-            print("BLAD! error: %s" % (e))
+            print("error: %s" % (e))
 
         time.sleep(0.5)
         try:
             data = self.i2cbus.read_i2c_block_data(0x44, 0x00, 6)
         except IOError:
             zapis_dziennika_zdarzen('err')
-        bleble = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45
-        print(bleble)
+        sens = ((((data[0] * 256.0) + data[1]) * 175) / 65535.0) - 45
+        print(sens)
 
 
 temp = Temp()

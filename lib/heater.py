@@ -33,8 +33,8 @@ class Heater:
     def __init__(self, pin, frequency, autoOn, autoOff):
         gpio.set_as_dac(pin, frequency)
         self.timeLastUpdatePwm = datetime.datetime.now()
-        self.autoOn = autoOn
-        self.autoOff = autoOff
+        self.autoOn = autoOn + ":00.0"
+        self.autoOff = autoOff + ":00.0"
         # --- PID settings -----
         self.pid.SetPoint = terrarium.get_requred_island_temperature()
         self.pid.setSampleTime(60)
@@ -142,4 +142,4 @@ class Heater:
         self.manualControlFlag = flag
 
 
-heater = Heater(13, 50, '11:00:00.0000', '16:30:00.0000')
+heater = Heater(13, 50, '11:00', '16:30')

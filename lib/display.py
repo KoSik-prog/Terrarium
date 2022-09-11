@@ -144,18 +144,18 @@ class Display:
         image = image.convert()
         return image
 
-    def icons(self, osx, osy, alpha, nazwa):
-        if (nazwa == "background"):
+    def icons(self, osx, osy, alpha, name):
+        if (name == "background"):
             foto = self.background.convert()
-        if (nazwa == "bulb1"):
+        if (name == "bulb1"):
             foto = self.bulb1.convert()
-        if (nazwa == "bulb2"):
+        if (name == "bulb2"):
             foto = self.bulb2.convert()
-        if (nazwa == "fan"):
+        if (name == "fan"):
             foto = self.fan.convert()
-        if (nazwa == "dripper"):
+        if (name == "dripper"):
             foto = self.dripper.convert()
-        if (nazwa == "sprayer"):
+        if (name == "sprayer"):
             foto = self.sprayer.convert()
         foto.set_alpha(alpha)
         self.screen.blit(foto, (osx, osy))

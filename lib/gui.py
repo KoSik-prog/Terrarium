@@ -17,6 +17,7 @@ try:
     from lib.sprayer import *
     from lib.display import *
     from lib.settings import *
+    from lib.fogger import *
     from terrarium import *
 except ImportError:
     print("Import error - gui")
@@ -50,6 +51,8 @@ class Gui:
                 self.menu_terrarium_tab()
             elif (self.activeTab == 4):
                 self.menu_lighting_tab()
+            elif (self.activeTab == 5):
+                self.menu_climate_tab()
             time.sleep(tfps)
             # when idle then return to the home screen
             if ((datetime.datetime.now() - self.menuTimeStamp) > (datetime.timedelta(seconds=self.menuTime))):
@@ -232,19 +235,37 @@ class Gui:
         
         self.touchPointList.append(display.button_with_text("backToMain", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
         pygame.display.update()
+        
+    def menu_climate_tab(self):
+        buttonMinColour = (180, 180, 180)
+        buttonMinBorderColour = (200, 200, 200)
+        display.icons(0, 0, 255, "background")
+
+        display.label_center(display.screen, "Mgła", "Nimbus Sans L", 80, 400, 45, (253, 180, 165), 255)
+        yPos = 60
+        btnWidth = 200
+        self.touchPointList.append(display.button_with_text("FoggerOff", display.screen, (180-(btnWidth/2), yPos+50, btnWidth, 70), (199, 51, 75), buttonMinBorderColour, 10, 2, "Off", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("FoggerAuto", display.screen, (400-(btnWidth/2), yPos+50, btnWidth, 70), (199, 134, 51), buttonMinBorderColour, 10, 2, "Auto", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("FoggerOn", display.screen, (620-(btnWidth/2), yPos+50, btnWidth, 70), (81, 142, 21), buttonMinBorderColour, 10, 2, "On", 90, (15, 15, 15)))
+        
+        self.touchPointList.append(display.button_with_text("backToMain", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
+        pygame.display.update()
 
     def click_event(self, name):
         if name == "menuTab":
             self.activeTab = 1
         elif name == "sprayerTab":
             self.activeTab = 2
-            settingsSavedFlag = False
+            self.settingsSavedFlag = False
         elif name == "terrariumTab":
             self.activeTab = 3
-            settingsSavedFlag = False
+            self.settingsSavedFlag = False
         elif name == "lightingTab":
             self.activeTab = 4
-            settingsSavedFlag = False
+            self.settingsSavedFlag = False
+        elif name == "climateTab":
+            self.activeTab = 5
+            self.settingsSavedFlag = False
         elif name == "SprayTimer1_H-":
             sprayer.spraying1 = self.change_time(sprayer.spraying1, -1, 0)
         elif name == "SprayTimer1_H+":
@@ -358,7 +379,13 @@ class Gui:
             heater.heat_control_stop() 
             gpio.set_heater_pwm(0)
             heater.set_manual_control_flag(False) 
-            self.activeTab = 0           
+            self.activeTab = 0      
+        elif name == "FoggerOn": 
+            fogger.fog_on()
+        elif name == "FoggerOff": 
+            fogger.fog_off()   
+        elif name == "FoggerAuto": 
+            fogger.fog_auto_run()
         elif name == "back":
             if self.activeTab > 0:
                 self.activeTab -= 1

@@ -26,6 +26,7 @@ try:
     from lib.sprayer import *
     from lib.gui import *
     from lib.watchdog import *
+    from lib.fogger import *
 except ImportError:
     print("Import error - terrarium main program")
 

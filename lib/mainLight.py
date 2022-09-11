@@ -59,16 +59,22 @@ class MainLight:
         end = timer()
         startupTime = datetime.timedelta(seconds=round(end - terrarium.startTime))
         if (gpio.check_main_light_flag() == 0 and (int(onTimeDifference.total_seconds()) > 0) and (int(offTimeDifference.total_seconds()) < (-60)) and self.manualControlFlag == False and startupTime.total_seconds() >= self.timeToResume):
-            log.add_log("AUTO main light -> ON")
-            gpio.lamp_on(self.pin)
+            self.turn_light_on()
             time.sleep(20)
         if (gpio.check_main_light_flag() == 1 and (int(offTimeDifference.total_seconds()) > 0) and (int(offTimeDifference.total_seconds()) < 60) and self.manualControlFlag == False):
-            log.add_log("AUTO main light -> OFF")
             heater.set_heat_control_flag(False)
             heater.dim_light()
             time.sleep(0.5)
-            gpio.lamp_off(self.pin)
+            self.turn_light_off()
             time.sleep(20)
+            
+    def turn_light_on(self):
+        log.add_log("Main light -> ON")
+        gpio.lamp_on(self.pin)
+        
+    def turn_light_off(self):
+        log.add_log("Main light -> OFF")
+        gpio.lamp_off(self.pin)
             
     def get_timer(self, timerNr, isHour):
         if timerNr == 0:
@@ -92,5 +98,7 @@ class MainLight:
         else:
             return self.autoOff
         
+    def set_manual_control_flag(self, flag):
+        self.manualControlFlag = flag
 
 mainLight = MainLight(19, '8:00', '19:00')

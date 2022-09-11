@@ -73,7 +73,7 @@ class Gui:
 
         if (gpio.check_heater_flag() == True):
             display.icons(10, iconsPosition, 255, "bulb2")
-            dl = display.label_center(display.screen, "{}%".format(gpio.read_heater_pwm(
+            dl = display.label_center(display.screen, "{}%".format(gpio.get_heater_pwm(
             )), "Nimbus Sans L", 48, 70, iconsPosition + 65, (235, 0, 69), 255)
             iconsPosition += 125
 
@@ -109,8 +109,8 @@ class Gui:
         display.icons(0, 0, 255, "background")
         self.touchPointList.append(display.button_with_text("sprayerTab", display.screen, (
             30, 60, 300, 120), (223, 169, 191), (223, 169, 151), 10, 2, "deszcz", 80, (253, 50, 35)))
-        self.touchPointList.append(display.button_with_text("dripperTab", display.screen, (
-            30, 220, 300, 120), (216, 155, 43), (216, 155, 0), 10, 2, "dripper", 80, (253, 50, 35)))
+        self.touchPointList.append(display.button_with_text("climateTab", display.screen, (
+            30, 220, 300, 120), (216, 155, 43), (216, 155, 0), 10, 2, "klimat", 80, (253, 50, 35)))
         self.touchPointList.append(display.button_with_text("terrariumTab", display.screen, (
             360, 60, 300, 120), (187, 179, 41), (187, 179, 0), 10, 2, "terrarium", 75, (253, 50, 35)))
         self.touchPointList.append(display.button_with_text("lightingTab", display.screen, (
@@ -147,15 +147,14 @@ class Gui:
 
         display.label(display.screen, "Czas spryskiwania", "Nimbus Sans L", 60, 30, 290, (253, 180, 165), 255)
         self.touchPointList.append(display.button_with_text("SprayTime_-", display.screen, (420, 270, 80, 80), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 110, (15, 15, 15)))
-        
         display.button_with_text("-", display.screen, (505, 270, 200, 80), (55, 112, 21), (55, 112, 21), 10, 2, "{} s".format(sprayer.sprayingTime), 80, (220, 220, 220))
-        self.touchPointList.append(display.button_with_text("SprayTime_+", display.screen, (710, 270, 80, 80), buttonMinColour, buttonMinBorderColour, 10, 2, "+", 80, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("SprayTime_+", display.screen, (710, 270, 80, 80), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         
         display.label(display.screen, "Manualne", "Nimbus Sans L", 60, 30, 410, (253, 180, 165), 255)
         self.touchPointList.append(display.button_with_text("SprayTimeManual_-", display.screen, (240, 430, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("SprayTimeManual_+", display.screen, (240, 380, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         display.button_with_text("-", display.screen, (325, 380, 200, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{} s".format(sprayer.sprayingTimeManual), 80, (220, 220, 220))
-        self.touchPointList.append(display.button_with_text("SprayManual", display.screen, (530, 380, 80, 100), (20, 192, 21), (30, 220, 21), 10, 2, "", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("SprayManual", display.screen, (530, 380, 80, 100), (199, 134, 51), buttonMinBorderColour, 10, 2, "", 90, (15, 15, 15)))
 
         display.button(display.screen, (600, 10, 190, 230), (47, 79, 79), (40, 72, 72), 10, 2)
         display.label_center(display.screen, "ostatnie:", "Nimbus Sans L", 40, 700, 45, (253, 201, 77), 255)
@@ -199,9 +198,9 @@ class Gui:
         buttonMinBorderColour = (200, 200, 200)
         display.icons(0, 0, 255, "background")
 
+        display.label_center(display.screen, "Main Light", "Nimbus Sans L", 80, 400, 35, (253, 180, 165), 255)
         xPos = 5
-        yPos = 90
-        display.label_center(display.screen, "Main Light Timer", "Nimbus Sans L", 60, 400, 40, (253, 180, 165), 255)
+        yPos = 75
         self.touchPointList.append(display.button_with_text("MainLightTimer1_H-", display.screen, (xPos, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text( "MainLightTimer1_H+", display.screen, (xPos, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         display.button_with_text("-", display.screen,  (xPos+85, yPos, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{:02d}".format(mainLight.get_timer(0, True)), 120, (220, 220, 220))
@@ -210,7 +209,7 @@ class Gui:
         self.touchPointList.append(display.button_with_text("MainLightTimer1_M-", display.screen, (xPos+305, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("MainLightTimer1_M+", display.screen, (xPos+305, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         xPos = 410
-        yPos = 90
+        yPos = 75
         self.touchPointList.append(display.button_with_text("MainLightTimer2_H-", display.screen, (xPos, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text( "MainLightTimer2_H+", display.screen, (xPos, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         display.button_with_text("-", display.screen,  (xPos+85, yPos, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{:02d}".format(mainLight.get_timer(1, True)), 120, (220, 220, 220))
@@ -218,6 +217,18 @@ class Gui:
         display.button_with_text("-", display.screen,  (xPos+200, yPos, 100, 100), (55, 112, 21), (55, 112, 21), 10, 2, "{:02d}".format(mainLight.get_timer(1, False)), 120, (220, 220, 220))
         self.touchPointList.append(display.button_with_text("MainLightTimer2_M-", display.screen, (xPos+305, yPos+50, 80, 50), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 90, (15, 15, 15)))
         self.touchPointList.append(display.button_with_text("MainLightTimer2_M+", display.screen, (xPos+305, yPos, 80, 50), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
+        yPos = 145
+        btnWidth = 200
+        self.touchPointList.append(display.button_with_text("MainLightOff", display.screen, (180-(btnWidth/2), yPos+50, btnWidth, 70), (199, 51, 75), buttonMinBorderColour, 10, 2, "Off", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("MainLightAuto", display.screen, (400-(btnWidth/2), yPos+50, btnWidth, 70), (199, 134, 51), buttonMinBorderColour, 10, 2, "Auto", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("MainLightOn", display.screen, (620-(btnWidth/2), yPos+50, btnWidth, 70), (81, 142, 21), buttonMinBorderColour, 10, 2, "On", 90, (15, 15, 15)))
+        xPos = 50
+        yPos = 390
+        display.label(display.screen, "Halogen", "Nimbus Sans L", 80, 160, 320, (253, 180, 165), 255)
+        self.touchPointList.append(display.button_with_text("HeaterPwmAuto", display.screen, (xPos-20, yPos, 150, 80), (199, 134, 51), buttonMinBorderColour, 10, 2, "Auto", 90, (15, 15, 15)))
+        self.touchPointList.append(display.button_with_text("HeaterPwm_-", display.screen, (xPos+140, yPos, 80, 80), buttonMinColour, buttonMinBorderColour, 10, 2, "-", 110, (15, 15, 15)))
+        display.button_with_text("-", display.screen, (xPos+225, yPos, 200, 80), (55, 112, 21), (55, 112, 21), 10, 2, "{}%".format(gpio.get_heater_pwm()), 80, (220, 220, 220))
+        self.touchPointList.append(display.button_with_text("HeaterPwm_+", display.screen, (xPos+430, yPos, 80, 80), (80, 80, 80), (50, 50, 50), 10, 2, "+", 80, (220, 220, 220)))
         
         self.touchPointList.append(display.button_with_text("backToMain", display.screen, (690, 390, 100, 80), (120, 120, 120), (15, 15, 15), 10, 2, "<", 120, (0, 0, 0)))
         pygame.display.update()
@@ -287,11 +298,13 @@ class Gui:
                 terrarium.temperatureRequiredIsland -= 1
             else:
                 terrarium.temperatureRequiredIsland = 99
+            heater.update_pid_target()
         elif name == "ReqTemperatureIsland_+":
             if terrarium.temperatureRequiredIsland < 99:
                 terrarium.temperatureRequiredIsland += 1
             else:
                 terrarium.temperatureRequiredIsland = 0
+            heater.update_pid_target()
         elif name == "minUviForHeating_-":
             if terrarium.minUviForHeating > 0:
                 terrarium.minUviForHeating -= 0.01
@@ -302,22 +315,50 @@ class Gui:
                 terrarium.minUviForHeating += 0.01
             else:
                 terrarium.minUviForHeating = 0
-        elif name == "MainLightTimer1_H-": #main light
+        elif name == "MainLightTimer1_H-":
             self.change_time_mainLight(0, -1, 0)
-        elif name == "MainLightTimer1_H+": #main light
+        elif name == "MainLightTimer1_H+": 
             self.change_time_mainLight(0, +1, 0)
-        elif name == "MainLightTimer1_M-": #main light
+        elif name == "MainLightTimer1_M-": 
             self.change_time_mainLight(0, 0, -1)
-        elif name == "MainLightTimer1_M+": #main light
+        elif name == "MainLightTimer1_M+": 
             self.change_time_mainLight(0, 0, +1)
-        elif name == "MainLightTimer2_H-": #main light
+        elif name == "MainLightTimer2_H-":
             self.change_time_mainLight(1, -1, 0)
-        elif name == "MainLightTimer2_H+": #main light
+        elif name == "MainLightTimer2_H+":
             self.change_time_mainLight(1, +1, 0)
-        elif name == "MainLightTimer2_M-": #main light
+        elif name == "MainLightTimer2_M-": 
             self.change_time_mainLight(1, 0, -1)
-        elif name == "MainLightTimer2_M+": #main light
+        elif name == "MainLightTimer2_M+": 
             self.change_time_mainLight(1, 0, +1)
+        elif name == "MainLightOff": 
+            mainLight.set_manual_control_flag(True)
+            mainLight.turn_light_off()
+        elif name == "MainLightOn": 
+            mainLight.set_manual_control_flag(True)
+            mainLight.turn_light_on()
+        elif name == "MainLightAuto": 
+            mainLight.set_manual_control_flag(False)
+            self.activeTab = 0
+        elif name == "HeaterPwm_-": 
+            heater.set_manual_control_flag(True)
+            heater.set_heat_control_flag(False)
+            if(gpio.get_heater_pwm() > 5):
+                gpio.set_heater_pwm(gpio.get_heater_pwm() - 5)
+            else:
+                gpio.set_heater_pwm(0)
+        elif name == "HeaterPwm_+": 
+            heater.set_manual_control_flag(True)
+            heater.set_heat_control_flag(False)
+            if(gpio.get_heater_pwm() < 95):
+                gpio.set_heater_pwm(gpio.get_heater_pwm() + 5)
+            else:
+                gpio.set_heater_pwm(100)
+        elif name == "HeaterPwmAuto": 
+            heater.heat_control_stop() 
+            gpio.set_heater_pwm(0)
+            heater.set_manual_control_flag(False) 
+            self.activeTab = 0           
         elif name == "back":
             if self.activeTab > 0:
                 self.activeTab -= 1

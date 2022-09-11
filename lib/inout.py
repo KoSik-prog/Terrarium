@@ -46,7 +46,7 @@ class Gpio:
     def check_heater_flag(self):
         return self.heaterFlag
 
-    def read_heater_pwm(self):
+    def get_heater_pwm(self):
         return self.heaterPwm
 
     def check_main_light_flag(self):

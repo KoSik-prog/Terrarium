@@ -52,10 +52,10 @@ class Heater:
             if self.heatControlFlag == True:
                 duration = datetime.datetime.now() - self.timeLastUpdatePwm
                 if (duration.total_seconds() >= self.pmwChangeTime):
-                    if (gpio.read_heater_pwm() > self.pwmRequired):
-                        gpio.set_heater_pwm(gpio.read_heater_pwm() - 1)
-                    elif (gpio.read_heater_pwm() < self.pwmRequired):
-                        gpio.set_heater_pwm(gpio.read_heater_pwm() + 1)
+                    if (gpio.get_heater_pwm() > self.pwmRequired):
+                        gpio.set_heater_pwm(gpio.get_heater_pwm() - 1)
+                    elif (gpio.get_heater_pwm() < self.pwmRequired):
+                        gpio.set_heater_pwm(gpio.get_heater_pwm() + 1)
                     self.timeLastUpdatePwm = datetime.datetime.now()
                 if (i == 10):  # 1sec
                     self.heating_control()
@@ -67,7 +67,7 @@ class Heater:
         while gpio.check_heater_flag() == True:  # dimming
             duration = datetime.datetime.now() - self.timeLastUpdatePwm
             if (duration.total_seconds() >= self.dimmingTime):
-                gpio.set_heater_pwm(gpio.read_heater_pwm() - 1)
+                gpio.set_heater_pwm(gpio.get_heater_pwm() - 1)
                 self.timeLastUpdatePwm = datetime.datetime.now()
             time.sleep(.1)
             
@@ -75,7 +75,7 @@ class Heater:
         while gpio.check_heater_flag() == True:  # dimming
             duration = datetime.datetime.now() - self.timeLastUpdatePwm
             if (duration.total_seconds() >= self.lightOffTime):
-                gpio.set_heater_pwm(gpio.read_heater_pwm() - 1)
+                gpio.set_heater_pwm(gpio.get_heater_pwm() - 1)
                 self.timeLastUpdatePwm = datetime.datetime.now()
             time.sleep(.1)
 
@@ -98,16 +98,22 @@ class Heater:
         if (int(stampOff.total_seconds()) > (-15) and int(stampOff.total_seconds()) < 0 and self.manualControlFlag == True):
             self.manualControlFlag = False
         # ------ check ------------------------
-        if (self.heatControlFlag == False and (int(stampOn.total_seconds()) > 0) and (int(stampOff.total_seconds()) < (-60)) and self.manualControlFlag == False):
-            self.pmwChangeTime = 1.0
-            self.heatControlFlag = True
-            heaterPwmControlTH = threading.Thread(target=self.pwm_control_thread)
-            log.add_log("AUTO Heater -> ON")
-            heaterPwmControlTH.start()  # run thread
+        if (self.heatControlFlag == False and (int(stampOn.total_seconds()) > 0) and (int(stampOff.total_seconds()) < (-60)) and self.manualControlFlag == False): 
+            self.heat_control_start()
         if (self.heatControlFlag == True and (int(stampOff.total_seconds()) > 0) and (int(stampOff.total_seconds()) < 60)):
-            log.add_log("AUTO Heater -> OFF")
-            self.heatControlFlag = False
+            self.heat_control_stop()
             self.pwmRequired = 0
+                      
+    def heat_control_start(self):
+        self.pmwChangeTime = 1.0
+        self.heatControlFlag = True
+        heaterPwmControlTH = threading.Thread(target=self.pwm_control_thread)
+        log.add_log("AUTO Heater -> ON")
+        heaterPwmControlTH.start()  # run thread
+        
+    def heat_control_stop(self):
+        log.add_log("AUTO Heater -> OFF")
+        self.heatControlFlag = False
 
     def heating_control(self):
         # if the light is not obstructed by the chameleon
@@ -116,6 +122,9 @@ class Heater:
             if (self.heatControlFlag == True):
                 self.pwmRequired = max(min(int(self.pid.output), 100), 0)
                 #log.add_log("uvi: {:.2f} / temp: {:.2f} -> halog: {} / flagSterOgrz: {}".format(terrarium.uvi, terrarium.temperatureTop, self.pwmRequired, self.heatControlFlag))
+                
+    def update_pid_target(self):
+        self.pid.SetPoint = terrarium.get_requred_island_temperature()
                 
     def dim_light(self):
         self.heatControlFlag = False
@@ -128,6 +137,9 @@ class Heater:
         
     def get_heat_control_flag(self):
         return self.heatControlFlag
+    
+    def set_manual_control_flag(self, flag):
+        self.manualControlFlag = flag
 
 
 heater = Heater(13, 50, '11:00:00.0000', '16:30:00.0000')

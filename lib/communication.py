@@ -10,6 +10,7 @@
 # -------------------------------------------------------------------------------
 try:
     import socket
+    import requests
     import datetime
     from lib.log import *
     from terrarium import *
@@ -17,21 +18,19 @@ except ImportError:
     print("Import error - communication")
 
 class Socket:
-    bufferSize = 1024
     socketLastSendTime = 0
 
-    def __init__(self, address, port):
-        self.address = address
-        self.serverAddressPort = (address, port)
+    def __init__(self, port):
+        self.socketPort = port
         self.socketLastSendTime = datetime.datetime.now()
-        self.udpClientSocket = socket.socket(
-            family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
-    def send_message(self, messageToSend):
-        bytesToSend = str.encode(messageToSend)
-        self.udpClientSocket.sendto(bytesToSend, self.serverAddressPort)
-        log.add_log("send to:  {} -> message: {}".format(self.address, messageToSend))
+    def send_message(self, messageToSend): 
         self.socketLastSendTime = datetime.datetime.now()
+        #data = str.encode(messageToSend)
+        data = messageToSend
+        myurl = "http://kosik.dynv6.net/webhooks/getdata.php?data=!{}&port={}".format(data, self.socketPort)
+        requests.post(myurl, timeout=2.50)
+        log.add_log("send message: {}".format(messageToSend))
 
     def send_message_to_server(self):
         if ((datetime.datetime.now() - self.socketLastSendTime) > (datetime.timedelta(minutes=terrarium.get_socket_message_interval()))):
@@ -40,4 +39,4 @@ class Socket:
                         terrarium.humidityTop, terrarium.temperatureBottom, terrarium.humidityBottom, terrarium.uva, terrarium.uvb, terrarium.uvi))
 
 
-socket = Socket("192.168.0.99", 2222)
+socket = Socket(2223) 

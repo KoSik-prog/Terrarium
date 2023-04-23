@@ -57,6 +57,7 @@ class Sprayer:
         gpio.sprayer_off(self.pin)
         self.lastSpraying = tim()
         self.sprayCounter += 1
+        terrarium.sprayedToday = self.sprayCounter
 
     def check_time(self, time1, time2):
         if time1.hour == time2.hour and time1.minute == time2.minute:

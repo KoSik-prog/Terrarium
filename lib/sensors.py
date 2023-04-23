@@ -23,11 +23,10 @@ try:
 except ImportError:
     print("Import error - sensors")
 
-
 class Sensors:
-    UVA = 0.0
-    UVB = 0.0
-    UVI = 0.0
+    uva = 0.0
+    uvb = 0.0
+    uvi = 0.0
     dataArrayUVA = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     dataArrayUVB = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     dataArrayTempTop = [0, 0, 0, 0, 0, 0, 0,
@@ -46,7 +45,8 @@ class Sensors:
 
     def sensors_thread(self):
         while terrarium.runFlag == True:
-            self.read_light_index()
+            #self.read_light_index() turned off!!!!!!!!!!!!!!!!!!
+            self.uvi = 0.5 # delete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             self.read_temperatures()
             self.send_data_to_terrarium()
             terrarium.sensorsLastUpdateTime = datetime.datetime.now()
@@ -97,7 +97,7 @@ class Sensors:
 
     def are_sensors_ok(self):
         resultTempSensors = self.are_temp_sensors_ok()
-        resultLightSensor = self.are_light_sensor_ok()
+        resultLightSensor = True # = self.are_light_sensor_ok()
         #print('temp sens:' + str(resultTempSensors) + ' / light: ' + str(resultLightSensor))
         if resultTempSensors == False or resultLightSensor == False:
             return False

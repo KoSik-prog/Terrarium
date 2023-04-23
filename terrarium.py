@@ -10,6 +10,7 @@
 # -------------------------------------------------------------------------------
 try:
     import datetime
+    import json
     from timeit import default_timer as timer
 except ImportError:
     print("Import error - terrarium")
@@ -61,7 +62,8 @@ class Terrarium:
         return self.socked_message_interval
 
     def get_socket_message(self):
-        return "setTerrariumData.T:{:4.1f}/W:{:3.0f},t:{:4.1f}/w:{:3.0f}/I:{:9.4f}/s:{}".format(self.temperatureTop, self.humidityTop, self.temperatureBottom, self.humidityBottom, self.uvi, self.sprayedToday)
+        dataList = [{"tempTop":self.temperatureTop}, {"humiTop":self.humidityTop}, {"tempBottom":self.temperatureBottom}, {"humiBottom":self.humidityBottom}, {"uvi":self.uvi}, {"sprayedToday":self.sprayedToday}]
+        return "setTerrariumData.{}".format(json.dumps(dataList))
 
 
 terrarium = Terrarium()

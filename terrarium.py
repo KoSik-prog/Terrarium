@@ -24,10 +24,10 @@ class Terrarium:
     uva = 0.0
     uvb = 0.0
     uvi = 0.0
-    socked_message_interval = 1
+    socked_message_interval = 5
     minimumHumidity = 50
     temperatureRequiredIsland = 29.0
-    sprayedToday = 0
+    spraysToday = 0
     # UV index at which the heating turns on / does not turn on when the chameleon covers the sensor
     minUviForHeating = 0.15
     runFlag = True  # flag keeping the main threads
@@ -62,7 +62,7 @@ class Terrarium:
         return self.socked_message_interval
 
     def get_socket_message(self):
-        dataList = [{"tempTop":self.temperatureTop}, {"humiTop":self.humidityTop}, {"tempBottom":self.temperatureBottom}, {"humiBottom":self.humidityBottom}, {"uvi":self.uvi}, {"sprayedToday":self.sprayedToday}]
+        dataList = {"tempTop":round(self.temperatureTop, 1), "humiTop":round(self.humidityTop, 0), "tempBottom":round(self.temperatureBottom, 1), "humiBottom":round(self.humidityBottom, 0), "uvi":round(self.uvi, 2), "spraysToday":self.spraysToday}
         return "setTerrariumData.{}".format(json.dumps(dataList))
 
 
